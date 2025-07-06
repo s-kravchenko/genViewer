@@ -1,5 +1,17 @@
 {
+  "name": "gen-viewer",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "clean": "rm -rf node_modules",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev:all": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "clean:all": "npm run clean && npm run clean --prefix server && npm run clean --prefix client"
+  },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "prettier": "^3.6.2"
   }
 }
