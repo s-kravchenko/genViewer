@@ -6,7 +6,7 @@
   "author": "",
   "type": "commonjs",
   "scripts": {
-    "dev": "parcel src/index.html --open",
+    "dev": "npx tsc --noEmit && npx parcel src/index.html --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf node_modules dist .parcel-cache"
   },
@@ -15,6 +15,9 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "parcel": "^2.15.4",
+    "typescript": "^5.8.3"
   }
 }

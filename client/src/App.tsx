@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+export type User = {
+  name: String;
+  age: number;
+};
 
 function App() {
-  const users = [
+  const users: User[] = [
     { name: 'John', age: 30 },
     { name: 'Mary', age: 28 },
   ];
