@@ -1,16 +1,26 @@
-import { User } from "@shared/types/user";
+import { useEffect, useState } from 'react';
+import { User } from '@shared/types/user';
 
 function App() {
-  const users: User[] = [
-    { name: 'John', age: 30 },
-    { name: 'Mary', age: 28 },
-  ];
+  const [backendData, setBackendData] = useState<User[]>([]);
+
+  useEffect(() => {
+    fetch('/api/users')
+      .then((response) => response.json())
+      .then((data) => setBackendData(data));
+  }, []);
 
   return (
     <div>
-      {users.map((user, i) =>
-            <p key={i}>{user.name}: {user.age} years old</p>
-      )}
+      {
+        typeof backendData === 'undefined'
+          ? 'Loading...'
+          : backendData.map((user, i) => (
+              <p key={i}>
+                {user.name}: {user.age} years old
+              </p>
+            ))
+      }
     </div>
   );
 }
