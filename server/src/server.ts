@@ -1,9 +1,5 @@
 import express from 'express';
-
-export type User = {
-  name: String;
-  age: number;
-};
+import { User } from "@shared/types/user";
 
 const app = express();
 

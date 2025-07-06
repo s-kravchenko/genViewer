@@ -1,7 +1,4 @@
-export type User = {
-  name: String;
-  age: number;
-};
+import { User } from "@shared/types/user";
 
 function App() {
   const users: User[] = [
