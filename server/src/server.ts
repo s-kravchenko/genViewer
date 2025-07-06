@@ -1,8 +1,13 @@
 import express from 'express';
 
+export type User = {
+  name: String;
+  age: number;
+};
+
 const app = express();
 
-const users = [
+const users: User[] = [
   { name: 'John', age: 30 },
   { name: 'Mary', age: 28 },
 ];
