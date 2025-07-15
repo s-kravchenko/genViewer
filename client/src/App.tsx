@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { User } from '@shared/types/user';
+import GedcomFileUploader from './components/GedcomFileUploader';
 
 function App() {
   const [backendData, setBackendData] = useState<User[]>([]);
@@ -12,6 +13,7 @@ function App() {
 
   return (
     <div>
+      <GedcomFileUploader />
       {
         typeof backendData === 'undefined'
           ? 'Loading...'
