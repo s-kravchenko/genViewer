@@ -1,43 +1,64 @@
 import { Family } from '@shared/models/Family';
-import { session } from './neo4j';
+import { neo4jClient } from './neo4j';
 import { linkPersonToFamily } from './relationshipRepo';
 
 export async function loadFamily(id: string): Promise<Family | null> {
-  const result = await session.run(
-    `MATCH (f:Family {id: $id})
-     OPTIONAL MATCH (h:Person)-[:HUSBAND_IN]->(f)
-     OPTIONAL MATCH (w:Person)-[:WIFE_IN]->(f)
-     OPTIONAL MATCH (c:Person)-[:CHILD_IN]->(f)
-     RETURN f,
-            h.id AS husbandId,
-            w.id AS wifeId,
-            collect(c.id) AS childrenIds`,
-    { id },
-  );
+  const session = neo4jClient.session();
 
-  if (result.records.length === 0) return null;
+  try {
+    const result = await session.run(
+      `MATCH (f:Family {id: $id})
+       OPTIONAL MATCH (h:Person)-[:HUSBAND_IN]->(f)
+       OPTIONAL MATCH (w:Person)-[:WIFE_IN]->(f)
+       OPTIONAL MATCH (c:Person)-[:CHILD_IN]->(f)
+       RETURN f,
+              h.id AS husbandId,
+              w.id AS wifeId,
+              collect(c.id) AS childrenIds`,
+      { id },
+    );
 
-  const record = result.records[0];
+    if (result.records.length === 0) {
+      console.error(`Failed to load family ${id}`);
+      return null;
+    }
 
-  return {
-    id: id,
-    husbandId: record.get('husbandId') ?? null,
-    wifeId: record.get('wifeId') ?? null,
-    childrenIds: record.get('childrenIds') ?? [],
-  };
+    const record = result.records[0];
+
+    return {
+      id: id,
+      husbandId: record.get('husbandId') ?? null,
+      wifeId: record.get('wifeId') ?? null,
+      childrenIds: record.get('childrenIds') ?? [],
+    };
+  } catch (err) {
+    console.error(`Failed to load family ${id}:`, err);
+    return null;
+  } finally {
+    await session.close(); // make sure it's always closed
+  }
 }
 
 export async function saveFamily(family: Family): Promise<boolean> {
-  // Step 1: Create the Family node
-  const familyResult = await session.run(
-    `MERGE (f:Family {id: $id})
-     RETURN f`,
-    family,
-  );
+  const session = neo4jClient.session();
 
-  if (familyResult.records.length === 0) {
-    console.error(`Failed to create Family node ${family.id}`);
+  // Step 1: Create the Family node
+  try {
+    const familyResult = await session.run(
+      `MERGE (f:Family {id: $id})
+       RETURN f`,
+      family,
+    );
+
+    if (familyResult.records.length === 0) {
+      console.error(`Failed to save Family node ${family.id}`);
+      return false;
+    }
+  } catch (err) {
+    console.error(`Failed to save Family node ${family.id}:`, err);
     return false;
+  } finally {
+    await session.close(); // make sure it's always closed
   }
 
   // Step 2: Connect spouses to Family

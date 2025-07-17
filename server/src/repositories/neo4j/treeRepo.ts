@@ -1,56 +1,79 @@
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
 import { Tree } from '@shared/models/Tree';
-import { session } from './neo4j';
+import { neo4jClient } from './neo4j';
 import { savePerson } from './personRepo';
 import { saveFamily } from './familyRepo';
 import { linkNodeToTree } from './relationshipRepo';
 
 export async function loadTree(treeId: string): Promise<Tree | null> {
-  const result = await session.run(
-    `MATCH (t:Tree {id: $treeId})
-     OPTIONAL MATCH (p:Person)-[:MEMBER_OF]->(t)
-     OPTIONAL MATCH (f:Family)-[:MEMBER_OF]->(t)
-     RETURN t,
-            collect(DISTINCT p) AS people,
-            collect(DISTINCT f) AS families`,
-    { treeId },
-  );
+  console.log('Loading tree:', treeId);
 
-  if (result.records.length === 0) return null;
+  const session = neo4jClient.session();
 
-  const record = result.records[0];
-  const treeNode = record.get('t').properties;
+  try {
+    const result = await session.run(
+      `MATCH (t:Tree {id: $treeId})
+       OPTIONAL MATCH (p:Person)-[:MEMBER_OF]->(t)
+       OPTIONAL MATCH (f:Family)-[:MEMBER_OF]->(t)
+       RETURN t,
+              collect(DISTINCT p) AS people,
+              collect(DISTINCT f) AS families`,
+      { treeId },
+    );
 
-  const people: Person[] = record
-    .get('people')
-    .map((node: any) => node.properties);
-  const families: Family[] = record
-    .get('families')
-    .map((node: any) => node.properties);
+    if (result.records.length === 0) {
+      console.error(`Failed to load tree ${treeId}`);
+      return null;
+    }
 
-  return {
-    id: treeNode.id,
-    fileName: treeNode.fileName,
-    createdAt: treeNode.createdAt,
-    people,
-    families,
-  };
+    const record = result.records[0];
+    const treeNode = record.get('t').properties;
+
+    const people: Person[] = record
+      .get('people')
+      .map((node: any) => node.properties);
+    const families: Family[] = record
+      .get('families')
+      .map((node: any) => node.properties);
+
+    return {
+      id: treeNode.id,
+      fileName: treeNode.fileName,
+      createdAt: treeNode.createdAt,
+      people,
+      families,
+    };
+  } catch (err) {
+    console.error(`Failed to load tree ${treeId}:`, err);
+    return null;
+  } finally {
+    await session.close(); // make sure it's always closed
+  }
 }
 
 export async function saveTree(tree: Tree): Promise<boolean> {
-  // Step 1: Create the Tree node
-  const result = await session.run(
-    `MERGE (t:Tree {id: $id})
-     SET t.fileName = $fileName,
-         t.createdAt = $createdAt
-     RETURN t`,
-    tree,
-  );
+  const session = neo4jClient.session();
 
-  if (result.records.length === 0) {
-    console.error(`Failed to create Tree node ${tree.id}`);
+  // Step 1: Create the Tree node
+  try {
+    const result = await session.run(
+      `MERGE (t:Tree {id: $id})
+      SET t.fileName = $fileName,
+          t.createdAt = $createdAt
+      RETURN t`,
+      tree,
+    );
+
+    if (result.records.length === 0) {
+      console.error(`Failed to save Tree node ${tree.id}`);
+      return false;
+    }
+  } catch (err) {
+    console.error(`Failed to save Tree node ${tree.id}`);
     return false;
+  } finally {
+    await session.close(); // make sure it's always closed
   }
 
   // Step 2: Create Person nodes
