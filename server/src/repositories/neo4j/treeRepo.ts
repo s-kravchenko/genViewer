@@ -6,6 +6,31 @@ import { savePerson } from './personRepo';
 import { saveFamily } from './familyRepo';
 import { linkNodeToTree } from './relationshipRepo';
 
+export async function loadTrees(): Promise<Tree[]> {
+  console.log('Loading trees');
+
+  const session = neo4jClient.session();
+
+  try {
+    const result = await session.run('MATCH (t:Tree) RETURN t');
+
+    if (result.records.length === 0) {
+      console.error('Failed to load trees');
+      return [];
+    }
+
+    const trees: Tree[] = result.records.map((r) => r.get('t').properties);
+
+    console.log('Loaded trees:', trees.length);
+    return trees;
+  } catch (err) {
+    console.error('Failed to load trees:', err);
+    return [];
+  } finally {
+    await session.close(); // make sure it's always closed
+  }
+}
+
 export async function loadTree(treeId: string): Promise<Tree | null> {
   console.log('Loading tree:', treeId);
 

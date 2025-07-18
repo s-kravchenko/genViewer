@@ -1,6 +1,10 @@
 import React, { ChangeEvent } from 'react';
 
-export default function GedcomFileUploader() {
+type GedcomFileUploaderProps = {
+  onUploaded: (id: string) => void;
+};
+
+export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderProps) {
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -15,7 +19,9 @@ export default function GedcomFileUploader() {
       });
 
       const result = await response.json();
-      console.log('Upload success:', result);
+      console.log('Upload result:', result);
+
+      onUploaded(result.treeId);
     } catch (error) {
       console.error('Upload failed:', error);
     }

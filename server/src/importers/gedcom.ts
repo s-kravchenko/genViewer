@@ -17,7 +17,6 @@ export class GedcomImporter {
     const tree = this.transform(gedcomData, originalFileName);
 
     // Load the tree into the database
-    await clearDb();
     const importResult = await this.load(tree);
 
     if (!importResult) {

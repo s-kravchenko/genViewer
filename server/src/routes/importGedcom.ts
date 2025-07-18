@@ -6,6 +6,8 @@ import { GedcomImporter } from '../importers/gedcom';
 const router = express.Router();
 
 router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
+  console.log('Received GEDCOM file:', req.file);
+  
   if (!req.file?.path) {
     res.status(400).send({ error: 'No file uploaded' });
     return;
