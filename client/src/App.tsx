@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GedcomFileUploader from './components/GedcomFileUploader';
 import TreeSelector from './components/TreeSelector';
+import DescendantTree from './components/DescendantTree';
 
 const Layout = styled.div`
   display: flex;
@@ -42,7 +43,9 @@ function App() {
           refresh={refreshKey}
         />
       </LeftPane>
-      <RightPane>Main content for tree "{treeId}" here...</RightPane>
+      <RightPane>
+        <DescendantTree treeId={treeId} />
+      </RightPane>
     </Layout>
   );
 }
