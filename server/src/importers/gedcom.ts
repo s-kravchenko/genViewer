@@ -5,7 +5,7 @@ import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
 import { Tree } from '@shared/models/Tree';
-import { saveTree } from '../repositories/neo4j/treeRepo';
+import { TreeRepo } from '../repositories/TreeRepo';
 
 export class GedcomImporter {
   public async import(filePath: string, originalFileName: string): Promise<Tree> {
@@ -55,7 +55,8 @@ export class GedcomImporter {
   }
 
   private async load(tree: Tree): Promise<boolean> {
-    const result = await saveTree(tree);
+    const treeRepo = new TreeRepo();
+    const result = await treeRepo.saveTree(tree);
     return result;
   }
 

@@ -1,11 +1,12 @@
 import express from 'express';
-import { loadTree } from '../repositories/neo4j/treeRepo';
+import { TreeRepo } from '../repositories/TreeRepo';
 
 const router = express.Router();
 
 router.get('/api/tree/:treeId', async (req, res) => {
   const treeId = req.params.treeId;
-  const tree = await loadTree(treeId);
+  const treeRepo = new TreeRepo();
+  const tree = await treeRepo.loadTree(treeId);
   res.json(tree);
 });
 
