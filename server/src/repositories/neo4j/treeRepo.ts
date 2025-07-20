@@ -41,9 +41,18 @@ export async function loadTree(treeId: string): Promise<Tree | null> {
       `MATCH (t:Tree {id: $treeId})
        OPTIONAL MATCH (p:Person)-[:MEMBER_OF]->(t)
        OPTIONAL MATCH (f:Family)-[:MEMBER_OF]->(t)
+       OPTIONAL MATCH (f)<-[:HUSBAND_IN]-(h:Person)
+       OPTIONAL MATCH (f)<-[:WIFE_IN]-(w:Person)
+       OPTIONAL MATCH (f)<-[:CHILD_IN]-(c:Person)
+       WITH t, collect(DISTINCT p) AS people, f, h, w, collect(DISTINCT c.id) AS childIds
        RETURN t,
-              collect(DISTINCT p) AS people,
-              collect(DISTINCT f) AS families`,
+              people,
+              collect(DISTINCT {
+                family: f,
+                husbandId: h.id,
+                wifeId: w.id,
+                childIds: childIds
+              }) AS families`,
       { treeId },
     );
 
@@ -58,9 +67,17 @@ export async function loadTree(treeId: string): Promise<Tree | null> {
     const people: Person[] = record
       .get('people')
       .map((node: any) => node.properties);
+    console.log(`TreeRepo: ${people.length} people loaded`);
+
     const families: Family[] = record
       .get('families')
-      .map((node: any) => node.properties);
+      .map((node: any) => ({
+        id: node.family.properties.id,
+        husbandId: node.husbandId ?? null,
+        wifeId: node.wifeId ?? null,
+        childIds: node.childIds ?? [],
+      }));
+    console.log(`TreeRepo: ${families.length} families loaded:`, families);
 
     return {
       id: treeNode.id,
