@@ -29,7 +29,7 @@ export async function loadFamily(id: string): Promise<Family | null> {
       id: id,
       husbandId: record.get('husbandId') ?? null,
       wifeId: record.get('wifeId') ?? null,
-      childrenIds: record.get('childrenIds') ?? [],
+      childIds: record.get('childrenIds') ?? [],
     };
   } catch (err) {
     console.error(`Failed to load family ${id}:`, err);
@@ -46,6 +46,7 @@ export async function saveFamily(family: Family): Promise<boolean> {
   try {
     const familyResult = await session.run(
       `MERGE (f:Family {id: $id})
+       SET f.metadata = apoc.convert.toJson($metadata)
        RETURN f`,
       family,
     );
@@ -81,7 +82,7 @@ export async function saveFamily(family: Family): Promise<boolean> {
   }
 
   // Step 3: Connect children to Family
-  for (const childId of family.childrenIds ?? []) {
+  for (const childId of family.childIds ?? []) {
     const result = await linkPersonToFamily(childId, family.id, 'CHILD_IN');
     if (!result) return false;
   }

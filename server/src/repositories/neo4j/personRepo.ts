@@ -43,7 +43,8 @@ export async function savePerson(person: Person): Promise<boolean> {
        SET p.givenName = $givenName,
            p.surname = $surname,
            p.birthDate = $birthDate,
-           p.deathDate = $deathDate
+           p.deathDate = $deathDate,
+           p.metadata = apoc.convert.toJson($metadata)
        RETURN p`,
       person,
     );
