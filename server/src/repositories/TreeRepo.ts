@@ -12,7 +12,7 @@ export class TreeRepo {
   }
 
   public async loadTrees(): Promise<Tree[]> {
-    console.log('Loading trees');
+    console.log('TreeRepo: Loading trees');
 
     const session = this.driver.session();
 
@@ -23,24 +23,24 @@ export class TreeRepo {
       );
 
       if (result.records.length === 0) {
-        console.error('Failed to load trees');
+        console.error('TreeRepo: Failed to load trees');
         return [];
       }
 
       const trees: Tree[] = result.records.map((r) => r.get('t').properties);
 
-      console.log('Loaded trees:', trees.length);
+      console.log('TreeRepo: Loaded trees:', trees.length);
       return trees;
     } catch (err) {
-      console.error('Failed to load trees:', err);
+      console.error('TreeRepo: Failed to load trees:', err);
       return [];
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
   }
 
   public async loadTree(treeId: string): Promise<Tree | null> {
-    console.log('Loading tree:', treeId);
+    console.log('TreeRepo: Loading tree:', treeId);
 
     const session = this.driver.session();
 
@@ -65,7 +65,7 @@ export class TreeRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`Failed to load tree ${treeId}`);
+        console.error(`TreeRepo: Failed to load tree ${treeId}`);
         return null;
       }
 
@@ -95,10 +95,10 @@ export class TreeRepo {
         families,
       };
     } catch (err) {
-      console.error(`Failed to load tree ${treeId}:`, err);
+      console.error(`TreeRepo: Failed to load tree ${treeId}:`, err);
       return null;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
   }
 
@@ -116,20 +116,18 @@ export class TreeRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`Failed to save Tree node ${tree.id}`);
+        console.error(`TreeRepo: Failed to save Tree node ${tree.id}`);
         return false;
       }
     } catch (err) {
-      console.error(`Failed to save Tree node ${tree.id}`);
+      console.error(`TreeRepo: Failed to save Tree node ${tree.id}`);
       return false;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
 
-    // Step 2: Create Person nodes
+    // Step 2: Save Person nodes
     for (const person of tree.people) {
-      console.log('Importing person:', person);
-
       const personResult = await this.savePerson(person);
       if (!personResult) return false;
 
@@ -137,10 +135,8 @@ export class TreeRepo {
       if (!linkResult) return false;
     }
 
-    // Step 3: Create Family nodes
+    // Step 3: Save Family nodes
     for (const family of tree.families) {
-      console.log('Importing family:', family);
-
       const familyResult = await this.saveFamily(family);
       if (!familyResult) return false;
 
@@ -152,6 +148,8 @@ export class TreeRepo {
   }
 
   public async savePerson(person: Person): Promise<boolean> {
+    console.log(`TreeRepo: Saving person ${person.id}`);
+
     const session = this.driver.session();
 
     try {
@@ -167,23 +165,27 @@ export class TreeRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`Failed to save Person node ${person.id}`);
+        console.error(`TreeRepo: Failed to save person ${person.id}`);
         return false;
       }
 
+      console.log(`TreeRepo: Person ${person.id} saved`);
+
       return true;
     } catch (err) {
-      console.error(`Failed to save Person node ${person.id}:`, err);
+      console.error(`TreeRepo: Failed to save person ${person.id}:`, err);
       return false;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
   }
 
   public async saveFamily(family: Family): Promise<boolean> {
+    console.log(`TreeRepo: Saving family ${family.id}`);
+
     const session = this.driver.session();
 
-    // Step 1: Create the Family node
+    // Step 1: Save the Family node
     try {
       const familyResult = await session.run(
         `MERGE (f:Family {id: $id})
@@ -193,14 +195,16 @@ export class TreeRepo {
       );
 
       if (familyResult.records.length === 0) {
-        console.error(`Failed to save Family node ${family.id}`);
+        console.error(`TreeRepo: Failed to save family ${family.id}`);
         return false;
       }
+
+      console.log(`TreeRepo: Family ${family.id} saved`);
     } catch (err) {
-      console.error(`Failed to save Family node ${family.id}:`, err);
-      return false;
+      console.error(`TreeRepo: Failed to save family ${family.id}:`, err);
+    return false;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
 
     // Step 2: Connect spouses to Family
@@ -236,6 +240,8 @@ export class TreeRepo {
     familyId: string,
     role: 'HUSBAND_IN' | 'WIFE_IN' | 'CHILD_IN',
   ): Promise<boolean> {
+    console.log(`TreeRepo: Saving ${role} link from person ${personId} to family ${familyId}`);
+
     const session = this.driver.session();
 
     try {
@@ -248,19 +254,22 @@ export class TreeRepo {
 
       if (result.records.length === 0) {
         console.error(
-          `Failed to create link ${role} between person ${personId} and family ${familyId}`,
+          `TreeRepo: Failed to save ${role} link from person ${personId} to family ${familyId}`,
         );
         return false;
       }
 
+      console.log(`TreeRepo: ${role} link from person ${personId} to family ${familyId} saved`);
+
       return true;
     } catch (err) {
       console.error(
-        `Failed to create link ${role} between person ${personId} and family ${familyId}`,
+        `TreeRepo: Failed to save ${role} link from person ${personId} to family ${familyId}:`,
+        err,
       );
       return false;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
   }
 
@@ -269,6 +278,8 @@ export class TreeRepo {
     nodeId: string,
     treeId: string,
   ): Promise<boolean> {
+    console.log(`TreeRepo: Saving MEMBER_OF link from ${nodeType} ${nodeId} to tree ${treeId}`);
+
     const session = this.driver.session();
 
     try {
@@ -280,16 +291,23 @@ export class TreeRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`Failed to link ${nodeType} ${nodeId} to tree ${treeId}`);
+        console.error(
+          `TreeRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to tree ${treeId}`,
+        );
         return false;
       }
 
+        console.log(`TreeRepo: MEMBER_OF link from ${nodeType} ${nodeId} to tree ${treeId} saved`);
+
       return true;
     } catch (err) {
-      console.error(`Failed to link ${nodeType} ${nodeId} to tree ${treeId}`);
+      console.error(
+        `TreeRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to tree ${treeId}:`,
+        err,
+      );
       return false;
     } finally {
-      await session.close(); // make sure it's always closed
+      await session.close();
     }
   }
 }
