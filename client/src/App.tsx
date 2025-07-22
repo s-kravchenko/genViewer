@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GedcomFileUploader from './components/GedcomFileUploader';
-import TreeSelector from './components/TreeSelector';
-import DescendantTree from './components/DescendantTree';
+import { TreeSelector } from './components/TreeSelector';
+import { DescendantTree } from './components/DescendantTree';
 
 const Layout = styled.div`
   display: flex;

@@ -35,7 +35,7 @@ type TreeSelectorProps = {
 };
 
 // Export the default function TreeSelector
-export default function TreeSelector({ refresh, selected, onSelect }: TreeSelectorProps) {
+export function TreeSelector({ refresh, selected, onSelect }: TreeSelectorProps) {
   const [trees, setTrees] = useState<Tree[]>([]);
 
   useEffect(() => {
