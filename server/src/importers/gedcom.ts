@@ -83,13 +83,20 @@ export class GedcomImporter {
     gedcomIdToUuidMap: Record<string, string>,
   ): Person {
     const gedcomId: string = ind.pointer()[0]?.toString() ?? '';
+
+    // Extract sex value
+    const sexTag = ind.getSex()?.value?.()[0]?.toString().toLowerCase() ?? '';
+    const sex: 'male' | 'female' | 'unknown' =
+      sexTag === 'm' ? 'male' : sexTag === 'f' ? 'female' : 'unknown';
+
     return {
       id: gedcomIdToUuidMap[gedcomId],
 
       givenName: ind.getName()?.getGivenName()?.value?.()[0]?.toString() ?? '',
       surname: ind.getName()?.getSurname()?.value?.()[0]?.toString() ?? '',
-      birthDate: ind.getEventBirth()?.getDate()?.toString() ?? '',
-      deathDate: ind.getEventDeath()?.getDate()?.toString() ?? '',
+      birthDate: this.normalizeGedcomDate(ind.getEventBirth()?.getDate()?.toString() ?? ''),
+      deathDate: this.normalizeGedcomDate(ind.getEventDeath()?.getDate()?.toString() ?? ''),
+      sex,
 
       metadata: {
         source: {
@@ -131,5 +138,21 @@ export class GedcomImporter {
         },
       },
     };
+  }
+
+  private normalizeGedcomDate(raw: string): string {
+    if (raw === '(empty selection)') return '';
+
+    const cleaned = raw.replace(/^DATE\s*/i, '').trim();
+
+    // Match '0039 BC' or '0039 AD' formats
+    const bcOrAdMatch = cleaned.match(/^0*(\d{1,4})\s*(BC|AD)$/i);
+    if (bcOrAdMatch) {
+      const year = parseInt(bcOrAdMatch[1], 10);
+      const era = bcOrAdMatch[2].toUpperCase();
+      return era === 'BC' ? `${year} BC` : `${year}`;
+    }
+
+    return cleaned;
   }
 }

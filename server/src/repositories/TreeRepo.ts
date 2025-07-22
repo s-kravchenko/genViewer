@@ -159,6 +159,7 @@ export class TreeRepo {
              p.surname = $surname,
              p.birthDate = $birthDate,
              p.deathDate = $deathDate,
+             p.sex = $sex,
              p.metadata = apoc.convert.toJson($metadata)
          RETURN p`,
         person,

@@ -72,8 +72,15 @@ export function DescendantTree({ treeId }: DescendantTreeProps) {
                 if (el) boxRefs.current.set(person.id, el);
               }}
             >
-              <PersonBox>
-                {person.givenName} {person.surname}
+              <PersonBox sex={person.sex}>
+                <div>
+                  {person.givenName} {person.surname}
+                </div>
+                {(person.birthDate || person.deathDate) &&
+                  <div>
+                    ({person.birthDate || '?'} - {person.deathDate || '?'})
+                  </div>
+                }
               </PersonBox>
             </PersonWrapper>
           ))}

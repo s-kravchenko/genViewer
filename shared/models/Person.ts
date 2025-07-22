@@ -5,6 +5,7 @@ export type Person = {
   surname?: string;
   birthDate?: string;
   deathDate?: string;
+  sex: string;
 
   metadata?: {
     source?: {

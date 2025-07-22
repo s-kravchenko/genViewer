@@ -18,10 +18,11 @@ export const PersonWrapper = styled.div`
   position: relative;
 `;
 
-export const PersonBox = styled.div`
+export const PersonBox = styled.div<{ sex?: string }>`
   border: 1px solid #ccc;
   border-radius: 4px;
-  background: #f8f8f8;
+  background: ${({ sex }) =>
+    sex === 'male' ? '#e0f0ff' : sex === 'female' ? '#ffe0e8' : '#f8f8f8'};
   padding: 0.5rem 1rem;
   min-width: 120px;
   text-align: center;
