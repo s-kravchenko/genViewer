@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import GedcomFileUploader from './components/GedcomFileUploader';
 import { TreeSelector } from './components/TreeSelector';
@@ -37,14 +37,10 @@ function App() {
             setRefreshKey((prev) => prev + 1);
           }}
         />
-        <TreeSelector
-          selected={treeId}
-          onSelect={(id) => setTreeId(id)}
-          refresh={refreshKey}
-        />
+        <TreeSelector selected={treeId} onSelect={(id) => setTreeId(id)} refresh={refreshKey} />
       </LeftPane>
       <RightPane>
-        <DescendantTree treeId={treeId} />
+        <DescendantTree treeId={treeId} rowGap={40} />
       </RightPane>
     </Layout>
   );

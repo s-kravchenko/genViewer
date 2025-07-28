@@ -1,20 +1,42 @@
-import { useEffect, useState, useRef } from 'react';
-import { Tree, Person } from '@shared/models';
-import { groupByGeneration, findRoot } from './TreeLayout';
-import { TreeContainer, GenerationRow, PersonBox, PersonWrapper } from './Styled';
-import TreeCanvas from './TreeCanvas';
-import { Connector, PersonWithGen } from './types';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { Tree } from '@shared/models';
+import { LayoutManager, PositionedNode } from './LayoutManager';
+import PersonCard from './PersonCard';
+import ConnectorsLayer from './ConnectorsLayer';
 
-type DescendantTreeProps = {
+const TreeWrapper = styled.div`
+  position: relative;
+`;
+
+const TreeGrid = styled.div<{ $cols: number, $rowGap: number }>`
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(${(props) => props.$cols}, auto);
+  grid-auto-rows: auto;
+  row-gap: ${(props) => props.$rowGap}px;
+  column-gap: 10px;
+  width: fit-content;
+  // border: 1px solid #333;
+`;
+
+const GridCell = styled.div<{ $row: string | number, $col: string | number }>`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  grid-row: ${(props) => props.$row};
+  grid-column: ${(props) => props.$col};
+  // border: 1px solid #444;
+`;
+
+interface DescendantTreeProps {
   treeId?: string;
-};
+  rowGap: number;
+}
 
-export function DescendantTree({ treeId }: DescendantTreeProps) {
-  const [tree, setTree] = useState<Tree | null>(null);
-  const [generations, setGenerations] = useState<PersonWithGen[][] | null>(null);
-  const boxRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [connectors, setConnectors] = useState<Connector[]>([]);
+export default function DescendantTree({ treeId, rowGap }: DescendantTreeProps) {
+  const treeRef = useRef<HTMLDivElement>(null);
+  const [nodeMap, setNodeMap] = useState<Map<string, PositionedNode>>(new Map());
 
   useEffect(() => {
     if (!treeId) return;
@@ -22,70 +44,33 @@ export function DescendantTree({ treeId }: DescendantTreeProps) {
     fetch(`/api/tree/${treeId}`)
       .then((res) => res.json())
       .then((t: Tree) => {
-        setTree(t);
-        const root = findRoot(t);
-        setGenerations(groupByGeneration(root, t));
+        const layoutManager = new LayoutManager(t);
+        const nodes = layoutManager.apply();
+        setNodeMap(nodes);
       });
   }, [treeId]);
 
-  useEffect(() => {
-    const newConnectors: Connector[] = [];
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    if (!containerRect || !tree) return;
+  const getMaxCol = () => {
+    if (!nodeMap.size) return 0;
+    return Math.max(...Array.from(nodeMap.values()).map((p) => p.gridColumn + p.columnSpan - 1));
+  }
 
-    for (const family of tree.families ?? []) {
-      const { husbandId, wifeId, childIds = [] } = family;
-      const parents = [husbandId, wifeId].filter(Boolean);
-
-      for (const parentId of parents) {
-        const parentBox = boxRefs.current.get(parentId!);
-        if (!parentBox) continue;
-        const parentRect = parentBox.getBoundingClientRect();
-
-        for (const childId of childIds) {
-          const childBox = boxRefs.current.get(childId!);
-          if (!childBox) continue;
-          const childRect = childBox.getBoundingClientRect();
-
-          const x1 = parentRect.left + parentRect.width / 2 - containerRect.left;
-          const y1 = parentRect.bottom - containerRect.top;
-          const x2 = childRect.left + childRect.width / 2 - containerRect.left;
-          const y2 = childRect.top - containerRect.top;
-
-          newConnectors.push({ x1, y1, x2, y2, key: `${parentId}-${childId}` });
-        }
-      }
-    }
-
-    setConnectors(newConnectors);
-  }, [tree]);
+  if (!nodeMap.size) return null;
 
   return (
-    <TreeContainer ref={containerRef}>
-      <TreeCanvas connectors={connectors} />
-      {generations?.map((gen, i) => (
-        <GenerationRow key={i}>
-          {gen.map((person) => (
-            <PersonWrapper
-              key={person.id}
-              ref={(el) => {
-                if (el) boxRefs.current.set(person.id, el);
-              }}
-            >
-              <PersonBox sex={person.sex}>
-                <div>
-                  {person.givenName} {person.surname}
-                </div>
-                {(person.birthDate || person.deathDate) &&
-                  <div>
-                    ({person.birthDate || '?'} - {person.deathDate || '?'})
-                  </div>
-                }
-              </PersonBox>
-            </PersonWrapper>
-          ))}
-        </GenerationRow>
-      ))}
-    </TreeContainer>
+    <TreeWrapper>
+      <TreeGrid ref={treeRef} $cols={getMaxCol()} $rowGap={rowGap}>
+        {Array.from(nodeMap.values()).map((node) => (
+          <GridCell
+            key={node.id}
+            $row={node.gridRow}
+            $col={`${node.gridColumn} / span ${node.columnSpan}`}
+          >
+            <PersonCard person={node} />
+          </GridCell>
+        ))}
+      </TreeGrid>
+      <ConnectorsLayer treeRef={treeRef} nodeMap={nodeMap} rowGap={rowGap} />
+    </TreeWrapper>
   );
 }

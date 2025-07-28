@@ -1,1 +1,1 @@
-export { DescendantTree } from './DescendantTree';
+export { default as DescendantTree } from './DescendantTree';
