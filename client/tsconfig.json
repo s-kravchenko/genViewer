@@ -3,7 +3,22 @@
 
   "compilerOptions": {
     "jsx": "preserve" /* Specify what JSX code is generated. */,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
+    "paths": {
+      /* Specify a set of entries that re-map imports to additional lookup locations. */
+      "@shared/*": ["../shared/*"]
+    }
   },
-
-  "include": ["src/**/*", "../shared"]
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../shared", // We don't want tsc to even look at raw shared files
+  ],
+  "references": [
+    // <--- IMPORTANT: Tells TypeScript about other projects
+    { "path": "../shared" }
+  ]
 }

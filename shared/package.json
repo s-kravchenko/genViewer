@@ -1,0 +1,19 @@
+{
+  "name": "@genviewer/shared",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc --build",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf node_modules dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

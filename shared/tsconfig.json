@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": true /* Generates .d.ts files for better type checking when imported */,
+    "composite": true,
+    "outDir": "./dist" /* Where compiled JS and .d.ts files will go */,
+    "rootDir": "./" /* rootDir for 'shared' is the shared folder itself */,
+    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */
+  },
+  "include": [
+    "**/*.ts" /* Include all TypeScript files in 'shared' */,
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
+}

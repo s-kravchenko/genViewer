@@ -6,12 +6,15 @@
   "author": "",
   "scripts": {
     "clean": "rm -rf node_modules",
-    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
-    "dev:all": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "clean:all": "npm run clean && npm run clean --prefix server && npm run clean --prefix client"
+    "install:all": "npm install && npm install --prefix shared && npm install --prefix server && npm install --prefix client",
+    "build:shared": "npm run build --prefix shared",
+    "start:dev-tasks": "concurrently \"npm run dev --prefix shared\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:all": "npm run build:shared && npm run start:dev-tasks",
+    "clean:all": "npm run clean && npm run clean --prefix shared && npm run clean --prefix server && npm run clean --prefix client"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3"
   }
 }

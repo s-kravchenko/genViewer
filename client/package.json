@@ -6,6 +6,7 @@
   "author": "",
   "type": "commonjs",
   "scripts": {
+    "watch": "tsc --watch --noEmit",
     "dev": "npx tsc --noEmit && npx parcel src/index.html --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf node_modules dist .parcel-cache"
