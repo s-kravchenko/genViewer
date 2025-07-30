@@ -1,5 +1,5 @@
 import express from 'express';
-import importGedcomRoute from './routes/importGedcom';
+import importGedcomRoute from './routes/import/gedcom';
 import treesRoute from './routes/trees';
 import treeRoute from './routes/tree';
 

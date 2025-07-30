@@ -1,7 +1,7 @@
 import express from 'express';
 import { Tree } from '@shared/models/Tree';
-import { upload } from '../middleware/multer';
-import { GedcomImporter } from '../importers/gedcom';
+import { upload } from '../../middleware/multer';
+import { GedcomImporter } from '../../importers/gedcom';
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
       path: req.file.path,
     };
     console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, response);
-    
+
     res.status(201).send(response);
   } catch (err) {
     console.error('GEDCOM import failed:', err);
