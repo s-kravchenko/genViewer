@@ -1,5 +1,5 @@
 import express from 'express';
-import { Tree } from '@shared/models/Tree';
+import { DataImport } from '@shared/models/DataImport';
 import { upload } from '../../middleware/multer';
 import { GedcomImporter } from '../../importers/gedcom';
 
@@ -15,12 +15,17 @@ router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
 
   try {
     const gedcomImporter = new GedcomImporter();
-    const tree: Tree = await gedcomImporter.import(req.file.path, req.file.originalname);
+    const dataImport: DataImport = await gedcomImporter.import(
+      req.file.originalname,
+      req.file.path,
+    );
 
+    const { id, originalFileName, filePath, createdAt } = dataImport;
     const response = {
-      treeId: tree.id,
-      filename: req.file.originalname,
-      path: req.file.path,
+      id,
+      originalFileName,
+      filePath,
+      createdAt,
     };
     console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, response);
 

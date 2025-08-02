@@ -4,26 +4,26 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
-import { Tree } from '@shared/models/Tree';
-import { TreeRepo } from '../repositories/TreeRepo';
+import { DataImport } from '@shared/models/DataImport';
+import { DataImportRepo } from '../repositories/DataImportRepo';
 
 export class GedcomImporter {
-  public async import(filePath: string, originalFileName: string): Promise<Tree> {
+  public async import(originalFileName: string, filePath: string): Promise<DataImport> {
     // Extract GEDCOM data from the file
     const gedcomData = this.extract(filePath);
 
-    // Transform GEDCOM data into a tree structure
-    const tree = this.transform(gedcomData, originalFileName);
+    // Transform GEDCOM data into a data import structure
+    const dataImport = this.transform(gedcomData, originalFileName, filePath);
 
-    // Load the tree into the database
-    const importResult = await this.load(tree);
+    // Load the data import into the database
+    const importResult = await this.load(dataImport);
 
     if (!importResult) {
       throw new Error('Failed to import GEDCOM data');
     }
 
-    console.log(`GEDCOM import completed, tree ID: ${tree.id}`);
-    return tree;
+    console.log(`GEDCOM import completed, data import id: ${dataImport.id}`);
+    return dataImport;
   }
 
   private extract(filePath: string): Gedcom.SelectionGedcom {
@@ -32,7 +32,11 @@ export class GedcomImporter {
     return gedcom;
   }
 
-  private transform(gedcomData: Gedcom.SelectionGedcom, originalFileName: string): Tree {
+  private transform(
+    gedcomData: Gedcom.SelectionGedcom,
+    originalFileName: string,
+    filePath: string,
+  ): DataImport {
     const gedcomIdToUuidMap: Record<string, string> = this.createGedcomIdToUuidMap(gedcomData);
 
     const people: Person[] = gedcomData
@@ -46,17 +50,18 @@ export class GedcomImporter {
       .map((fam) => this.gedcomFamilyToFamily(fam, gedcomIdToUuidMap));
 
     return {
-      id: uuidv4(), // Generate a unique ID for the tree
+      id: uuidv4(), // Generate a unique id for the data import
       people,
       families,
-      fileName: originalFileName,
+      originalFileName,
+      filePath,
       createdAt: new Date().toISOString(),
     };
   }
 
-  private async load(tree: Tree): Promise<boolean> {
-    const treeRepo = new TreeRepo();
-    const result = await treeRepo.saveTree(tree);
+  private async load(dataImport: DataImport): Promise<boolean> {
+    const dataImportRepo = new DataImportRepo();
+    const result = await dataImportRepo.saveDataImport(dataImport);
     return result;
   }
 

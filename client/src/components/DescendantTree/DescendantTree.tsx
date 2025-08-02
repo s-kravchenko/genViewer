@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Tree } from '@shared/models';
+import { DataImport } from '@shared/models';
 import { LayoutManager, PositionedNode } from './LayoutManager';
 import PersonCard from './PersonCard';
 import ConnectorsLayer from './ConnectorsLayer';
@@ -9,7 +9,7 @@ const TreeWrapper = styled.div`
   position: relative;
 `;
 
-const TreeGrid = styled.div<{ $cols: number, $rowGap: number }>`
+const TreeGrid = styled.div<{ $cols: number; $rowGap: number }>`
   display: grid;
   position: relative;
   grid-template-columns: repeat(${(props) => props.$cols}, auto);
@@ -20,7 +20,7 @@ const TreeGrid = styled.div<{ $cols: number, $rowGap: number }>`
   // border: 1px solid #333;
 `;
 
-const GridCell = styled.div<{ $row: string | number, $col: string | number }>`
+const GridCell = styled.div<{ $row: string | number; $col: string | number }>`
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -30,30 +30,30 @@ const GridCell = styled.div<{ $row: string | number, $col: string | number }>`
 `;
 
 interface DescendantTreeProps {
-  treeId?: string;
+  dataImportId?: string;
   rowGap: number;
 }
 
-export default function DescendantTree({ treeId, rowGap }: DescendantTreeProps) {
+export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeProps) {
   const treeRef = useRef<HTMLDivElement>(null);
   const [nodeMap, setNodeMap] = useState<Map<string, PositionedNode>>(new Map());
 
   useEffect(() => {
-    if (!treeId) return;
+    if (!dataImportId) return;
 
-    fetch(`/api/tree/${treeId}`)
+    fetch(`/api/data-import/${dataImportId}`)
       .then((res) => res.json())
-      .then((t: Tree) => {
+      .then((t: DataImport) => {
         const layoutManager = new LayoutManager(t);
         const nodes = layoutManager.apply();
         setNodeMap(nodes);
       });
-  }, [treeId]);
+  }, [dataImportId]);
 
   const getMaxCol = () => {
     if (!nodeMap.size) return 0;
     return Math.max(...Array.from(nodeMap.values()).map((p) => p.gridColumn + p.columnSpan - 1));
-  }
+  };
 
   if (!nodeMap.size) return null;
 

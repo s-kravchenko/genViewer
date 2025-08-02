@@ -21,7 +21,7 @@ export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderPro
       const result = await response.json();
       console.log('Upload result:', result);
 
-      onUploaded(result.treeId);
+      onUploaded(result.id);
     } catch (error) {
       console.error('Upload failed:', error);
     }

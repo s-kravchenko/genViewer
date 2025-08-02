@@ -1,10 +1,11 @@
 import { Family } from './Family';
 import { Person } from './Person';
 
-export type Tree = {
+export type DataImport = {
   id: string;
   people: Person[];
   families: Family[];
-  fileName: string;
+  originalFileName: string;
+  filePath: string;
   createdAt: string;
 };
