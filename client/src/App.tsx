@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import GedcomFileUploader from './components/GedcomFileUploader';
-import { DataImportSelector } from './components/DataImportSelector';
+import { DataImportPanel } from './components/DataImportPanel';
 import { DescendantTree } from './components/DescendantTree';
 
 const Layout = styled.div`
@@ -26,22 +25,11 @@ const RightPane = styled.div`
 
 function App() {
   const [dataImportId, setDataImportId] = useState<string>();
-  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   return (
     <Layout>
       <LeftPane>
-        <GedcomFileUploader
-          onUploaded={(newId) => {
-            setDataImportId(newId);
-            setRefreshKey((prev) => prev + 1);
-          }}
-        />
-        <DataImportSelector
-          selected={dataImportId}
-          onSelect={(id) => setDataImportId(id)}
-          refresh={refreshKey}
-        />
+        <DataImportPanel onSelect={setDataImportId} />
       </LeftPane>
       <RightPane>
         <DescendantTree dataImportId={dataImportId} rowGap={40} />
