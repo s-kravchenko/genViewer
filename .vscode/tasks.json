@@ -21,12 +21,13 @@
         "owner": "typescript",
         "fileLocation": ["relative", "${workspaceFolder}/server"], // <--- Specific to 'server'
         "pattern": {
-          "regexp": "^(.*?)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
+          "regexp": "^(.*?):(\\d+):(\\d+)\\s*-\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
           "file": 1,
-          "location": 2,
-          "severity": 3,
-          "code": 4,
-          "message": 5
+          "line": 2, // Capture line number from second group
+          "column": 3, // Capture column number from third group
+          "severity": 4,
+          "code": 5,
+          "message": 6
         },
         "background": {
           "activeOnStart": true,
@@ -47,12 +48,13 @@
         "owner": "typescript",
         "fileLocation": ["relative", "${workspaceFolder}/client"], // <--- Specific to 'client'
         "pattern": {
-          "regexp": "^(.*?)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
+          "regexp": "^(.*?):(\\d+):(\\d+)\\s*-\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
           "file": 1,
-          "location": 2,
-          "severity": 3,
-          "code": 4,
-          "message": 5
+          "line": 2, // Capture line number from second group
+          "column": 3, // Capture column number from third group
+          "severity": 4,
+          "code": 5,
+          "message": 6
         },
         "background": {
           "activeOnStart": true,
@@ -73,12 +75,13 @@
         "owner": "typescript",
         "fileLocation": ["relative", "${workspaceFolder}/shared"], // <--- Specific to 'shared'
         "pattern": {
-          "regexp": "^(.*?)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
+          "regexp": "^(.*?):(\\d+):(\\d+)\\s*-\\s+(error|warning|info)\\s+TS(\\d+):\\s*(.*)$",
           "file": 1,
-          "location": 2,
-          "severity": 3,
-          "code": 4,
-          "message": 5
+          "line": 2, // Capture line number from second group
+          "column": 3, // Capture column number from third group
+          "severity": 4,
+          "code": 5,
+          "message": 6
         },
         "background": {
           "activeOnStart": true,
