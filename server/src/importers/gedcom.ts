@@ -5,7 +5,7 @@ import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
 import { DataImport } from '@shared/models/DataImport';
-import { DataImportRepo } from '../repositories/DataImportRepo';
+import { Neo4jRepo } from '../repositories/Neo4jRepo';
 
 export class GedcomImporter {
   public async import(originalFileName: string, filePath: string): Promise<DataImport> {
@@ -60,8 +60,8 @@ export class GedcomImporter {
   }
 
   private async load(dataImport: DataImport): Promise<boolean> {
-    const dataImportRepo = new DataImportRepo();
-    const result = await dataImportRepo.saveDataImport(dataImport);
+    const repo = new Neo4jRepo();
+    const result = await repo.saveDataImport(dataImport);
     return result;
   }
 

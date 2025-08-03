@@ -1,10 +1,8 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
-import { Person } from '@shared/models/Person';
-import { Family } from '@shared/models/Family';
-import { DataImport } from '@shared/models/DataImport';
+import { Person, Family, DataImport } from '@shared/models';
 
-export class DataImportRepo {
+export class Neo4jRepo {
   private driver: Driver;
 
   public constructor() {
@@ -12,7 +10,7 @@ export class DataImportRepo {
   }
 
   public async loadDataImports(): Promise<DataImport[]> {
-    console.log('DataImportRepo: Loading data imports');
+    console.log('Neo4jRepo: Loading data imports');
 
     const session = this.driver.session();
 
@@ -24,10 +22,10 @@ export class DataImportRepo {
 
       const dataImports: DataImport[] = result.records.map((r) => r.get('i').properties);
 
-      console.log('DataImportRepo: Loaded data imports:', dataImports.length);
+      console.log('Neo4jRepo: Loaded data imports:', dataImports.length);
       return dataImports;
     } catch (err) {
-      console.error('DataImportRepo: Failed to load data imports:', err);
+      console.error('Neo4jRepo: Failed to load data imports:', err);
       return [];
     } finally {
       await session.close();
@@ -35,7 +33,7 @@ export class DataImportRepo {
   }
 
   public async loadDataImport(id: string): Promise<DataImport | null> {
-    console.log('DataImportRepo: Loading data import:', id);
+    console.log('Neo4jRepo: Loading data import:', id);
 
     const session = this.driver.session();
 
@@ -60,7 +58,7 @@ export class DataImportRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`DataImportRepo: Failed to load data import ${id}`);
+        console.error(`Neo4jRepo: Failed to load data import ${id}`);
         return null;
       }
 
@@ -68,7 +66,7 @@ export class DataImportRepo {
       const dataImportNode = record.get('i').properties;
 
       const people: Person[] = record.get('people').map((node: any) => node.properties);
-      console.log(`DataImportRepo: ${people.length} people loaded`);
+      console.log(`Neo4jRepo: ${people.length} people loaded`);
 
       const families: Family[] = record.get('families').map((node: any) => ({
         id: node.family.properties.id,
@@ -76,7 +74,7 @@ export class DataImportRepo {
         wifeId: node.wifeId ?? null,
         childIds: node.childIds ?? [],
       }));
-      console.log(`DataImportRepo: ${families.length} families loaded:`, families);
+      console.log(`Neo4jRepo: ${families.length} families loaded:`, families);
 
       return {
         id: dataImportNode.id,
@@ -87,7 +85,7 @@ export class DataImportRepo {
         families,
       };
     } catch (err) {
-      console.error(`DataImportRepo: Failed to load data import ${id}:`, err);
+      console.error(`Neo4jRepo: Failed to load data import ${id}:`, err);
       return null;
     } finally {
       await session.close();
@@ -95,7 +93,7 @@ export class DataImportRepo {
   }
 
   public async saveDataImport(dataImport: DataImport): Promise<boolean> {
-    console.log(`DataImportRepo: Saving data import ${dataImport.id}`);
+    console.log(`Neo4jRepo: Saving data import ${dataImport.id}`);
 
     const session = this.driver.session();
 
@@ -111,11 +109,11 @@ export class DataImportRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`DataImportRepo: Failed to save data import ${dataImport.id}`);
+        console.error(`Neo4jRepo: Failed to save data import ${dataImport.id}`);
         return false;
       }
     } catch (err) {
-      console.error(`DataImportRepo: Failed to save data import ${dataImport.id}:`, err);
+      console.error(`Neo4jRepo: Failed to save data import ${dataImport.id}:`, err);
       return false;
     } finally {
       await session.close();
@@ -143,7 +141,7 @@ export class DataImportRepo {
   }
 
   public async savePerson(person: Person): Promise<boolean> {
-    console.log(`DataImportRepo: Saving person ${person.id}`);
+    console.log(`Neo4jRepo: Saving person ${person.id}`);
 
     const session = this.driver.session();
 
@@ -161,15 +159,15 @@ export class DataImportRepo {
       );
 
       if (result.records.length === 0) {
-        console.error(`DataImportRepo: Failed to save person ${person.id}`);
+        console.error(`Neo4jRepo: Failed to save person ${person.id}`);
         return false;
       }
 
-      console.log(`DataImportRepo: Person ${person.id} saved`);
+      console.log(`Neo4jRepo: Person ${person.id} saved`);
 
       return true;
     } catch (err) {
-      console.error(`DataImportRepo: Failed to save person ${person.id}:`, err);
+      console.error(`Neo4jRepo: Failed to save person ${person.id}:`, err);
       return false;
     } finally {
       await session.close();
@@ -177,7 +175,7 @@ export class DataImportRepo {
   }
 
   public async saveFamily(family: Family): Promise<boolean> {
-    console.log(`DataImportRepo: Saving family ${family.id}`);
+    console.log(`Neo4jRepo: Saving family ${family.id}`);
 
     const session = this.driver.session();
 
@@ -191,13 +189,13 @@ export class DataImportRepo {
       );
 
       if (familyResult.records.length === 0) {
-        console.error(`DataImportRepo: Failed to save family ${family.id}`);
+        console.error(`Neo4jRepo: Failed to save family ${family.id}`);
         return false;
       }
 
-      console.log(`DataImportRepo: Family ${family.id} saved`);
+      console.log(`Neo4jRepo: Family ${family.id} saved`);
     } catch (err) {
-      console.error(`DataImportRepo: Failed to save family ${family.id}:`, err);
+      console.error(`Neo4jRepo: Failed to save family ${family.id}:`, err);
       return false;
     } finally {
       await session.close();
@@ -228,9 +226,7 @@ export class DataImportRepo {
     familyId: string,
     role: 'HUSBAND_IN' | 'WIFE_IN' | 'CHILD_IN',
   ): Promise<boolean> {
-    console.log(
-      `DataImportRepo: Saving ${role} link from person ${personId} to family ${familyId}`,
-    );
+    console.log(`Neo4jRepo: Saving ${role} link from person ${personId} to family ${familyId}`);
 
     const session = this.driver.session();
 
@@ -244,19 +240,17 @@ export class DataImportRepo {
 
       if (result.records.length === 0) {
         console.error(
-          `DataImportRepo: Failed to save ${role} link from person ${personId} to family ${familyId}`,
+          `Neo4jRepo: Failed to save ${role} link from person ${personId} to family ${familyId}`,
         );
         return false;
       }
 
-      console.log(
-        `DataImportRepo: ${role} link from person ${personId} to family ${familyId} saved`,
-      );
+      console.log(`Neo4jRepo: ${role} link from person ${personId} to family ${familyId} saved`);
 
       return true;
     } catch (err) {
       console.error(
-        `DataImportRepo: Failed to save ${role} link from person ${personId} to family ${familyId}:`,
+        `Neo4jRepo: Failed to save ${role} link from person ${personId} to family ${familyId}:`,
         err,
       );
       return false;
@@ -271,7 +265,7 @@ export class DataImportRepo {
     dataImportId: string,
   ): Promise<boolean> {
     console.log(
-      `DataImportRepo: Saving MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}`,
+      `Neo4jRepo: Saving MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}`,
     );
 
     const session = this.driver.session();
@@ -286,19 +280,19 @@ export class DataImportRepo {
 
       if (result.records.length === 0) {
         console.error(
-          `DataImportRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}`,
+          `Neo4jRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}`,
         );
         return false;
       }
 
       console.log(
-        `DataImportRepo: MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId} saved`,
+        `Neo4jRepo: MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId} saved`,
       );
 
       return true;
     } catch (err) {
       console.error(
-        `DataImportRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}:`,
+        `Neo4jRepo: Failed to save MEMBER_OF link from ${nodeType} ${nodeId} to data import ${dataImportId}:`,
         err,
       );
       return false;
