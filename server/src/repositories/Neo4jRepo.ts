@@ -1,6 +1,7 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
 import { Person, Family, DataImport, RootInfo, Lineage } from '@shared/models';
+import { DataImportResponse } from '@shared/contracts/DataImportResponse';
 
 export class Neo4jRepo {
   private driver: Driver;
@@ -32,7 +33,7 @@ export class Neo4jRepo {
     }
   }
 
-  public async loadDataImport(id: string): Promise<DataImport | null> {
+  public async loadDataImport(id: string): Promise<DataImportResponse | null> {
     console.log('Neo4jRepo: Loading data import:', id);
 
     const session = this.driver.session();
@@ -63,7 +64,8 @@ export class Neo4jRepo {
       }
 
       const record = result.records[0];
-      const dataImportNode = record.get('i').properties;
+
+      const dataImport = record.get('i').properties;
 
       const people: Person[] = record.get('people').map((node: any) => node.properties);
       console.log(`Neo4jRepo: ${people.length} people loaded`);
@@ -77,10 +79,7 @@ export class Neo4jRepo {
       console.log(`Neo4jRepo: ${families.length} families loaded:`, families);
 
       return {
-        id: dataImportNode.id,
-        originalFileName: dataImportNode.fileName,
-        filePath: dataImportNode.filePath,
-        createdAt: dataImportNode.createdAt,
+        dataImport: dataImport,
         people,
         families,
       };
@@ -92,7 +91,7 @@ export class Neo4jRepo {
     }
   }
 
-  public async saveDataImport(dataImport: DataImport): Promise<boolean> {
+  public async saveDataImport(people: Person[], families: Family[], dataImport: DataImport): Promise<boolean> {
     console.log(`Neo4jRepo: Saving data import ${dataImport.id}`);
 
     const session = this.driver.session();
@@ -120,7 +119,10 @@ export class Neo4jRepo {
     }
 
     // Step 2: Save Person nodes
-    for (const person of dataImport.people) {
+    for (const personId of dataImport.personIds) {
+      const person = people.find((p) => p.id === personId);
+      if (!person) return false;
+
       const personResult = await this.savePerson(person);
       if (!personResult) return false;
 
@@ -129,7 +131,10 @@ export class Neo4jRepo {
     }
 
     // Step 3: Save Family nodes
-    for (const family of dataImport.families) {
+    for (const familyId of dataImport.familyIds) {
+      const family = families.find((f) => f.id === familyId);
+      if (!family) return false;
+
       const familyResult = await this.saveFamily(family);
       if (!familyResult) return false;
 

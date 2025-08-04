@@ -1,8 +1,10 @@
 import { Person } from './Person';
 
-export type Lineage = {
+export interface Lineage {
   id: string;
+
   name: string;
-  founderId: string;
   createdAt: string; // ISO 8601
+
+  founderId: string;
 };

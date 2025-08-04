@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { DataImport } from '@shared/models';
+import { DataImportResponse } from '@shared/contracts/DataImportResponse';
 import { LayoutManager, PositionedNode } from './LayoutManager';
 import PersonCard from './PersonCard';
 import ConnectorsLayer from './ConnectorsLayer';
@@ -43,8 +43,8 @@ export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeP
 
     fetch(`/api/data-import/${dataImportId}`)
       .then((res) => res.json())
-      .then((t: DataImport) => {
-        const layoutManager = new LayoutManager(t);
+      .then((data: DataImportResponse) => {
+        const layoutManager = new LayoutManager(data.dataImport, data.people, data.families);
         const nodes = layoutManager.apply();
         setNodeMap(nodes);
       });

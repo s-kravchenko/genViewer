@@ -10,33 +10,10 @@ import { Neo4jRepo } from '../repositories/Neo4jRepo';
 export class GedcomImporter {
   public async import(originalFileName: string, filePath: string): Promise<DataImport> {
     // Extract GEDCOM data from the file
-    const gedcomData = this.extract(filePath);
+    const buffer = fs.readFileSync(path.resolve(filePath));
+    const gedcomData = Gedcom.readGedcom(buffer);
 
     // Transform GEDCOM data into a data import structure
-    const dataImport = this.transform(gedcomData, originalFileName, filePath);
-
-    // Load the data import into the database
-    const importResult = await this.load(dataImport);
-
-    if (!importResult) {
-      throw new Error('Failed to import GEDCOM data');
-    }
-
-    console.log(`GEDCOM import completed, data import id: ${dataImport.id}`);
-    return dataImport;
-  }
-
-  private extract(filePath: string): Gedcom.SelectionGedcom {
-    const buffer = fs.readFileSync(path.resolve(filePath));
-    const gedcom = Gedcom.readGedcom(buffer);
-    return gedcom;
-  }
-
-  private transform(
-    gedcomData: Gedcom.SelectionGedcom,
-    originalFileName: string,
-    filePath: string,
-  ): DataImport {
     const gedcomIdToUuidMap: Record<string, string> = this.createGedcomIdToUuidMap(gedcomData);
 
     const people: Person[] = gedcomData
@@ -49,20 +26,33 @@ export class GedcomImporter {
       .arraySelect()
       .map((fam) => this.gedcomFamilyToFamily(fam, gedcomIdToUuidMap));
 
-    return {
+    const personIds = people.map((p) => p.id);
+    const familyIds = families.map((f) => f.id);
+
+    const dataImport = {
       id: uuidv4(), // Generate a unique id for the data import
-      people,
-      families,
+
       originalFileName,
       filePath,
       createdAt: new Date().toISOString(),
-    };
-  }
 
-  private async load(dataImport: DataImport): Promise<boolean> {
+      people,
+      families,
+
+      personIds,
+      familyIds,
+    };
+
+    // Load the data import into the database
     const repo = new Neo4jRepo();
-    const result = await repo.saveDataImport(dataImport);
-    return result;
+    const importResult = await repo.saveDataImport(people, families, dataImport);
+
+    if (!importResult) {
+      throw new Error('Failed to import GEDCOM data');
+    }
+
+    console.log(`GEDCOM import completed, data import id: ${dataImport.id}`);
+    return dataImport;
   }
 
   private createGedcomIdToUuidMap(gedcomData: Gedcom.SelectionGedcom): Record<string, string> {
@@ -102,6 +92,10 @@ export class GedcomImporter {
       birthDate: this.normalizeGedcomDate(ind.getEventBirth()?.getDate()?.toString() ?? ''),
       deathDate: this.normalizeGedcomDate(ind.getEventDeath()?.getDate()?.toString() ?? ''),
       sex,
+
+      familyIds: ind.getFamilyAsSpouse()
+          .arraySelect()
+          .map((fam) => gedcomIdToUuidMap[fam.pointer()[0]?.toString() ?? '']) ?? [],
 
       metadata: {
         source: {

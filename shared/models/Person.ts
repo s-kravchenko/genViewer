@@ -1,4 +1,4 @@
-export type Person = {
+export interface Person {
   id: string;
 
   givenName?: string;
@@ -6,6 +6,8 @@ export type Person = {
   birthDate?: string;
   deathDate?: string;
   sex: string;
+
+  familyIds: string[];
 
   metadata?: {
     source?: {

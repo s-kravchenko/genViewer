@@ -1,6 +1,6 @@
 import { Person } from './Person';
 
-export type RootInfo = {
+export interface RootInfo {
   root: Person;
   descendantCount: number;
 };

@@ -1,4 +1,4 @@
-export type Family = {
+export interface Family {
   id: string;
 
   husbandId?: string;
