@@ -26,12 +26,13 @@ const RightPane = styled.div`
 
 function App() {
   const [dataImportId, setDataImportId] = useState<string>();
+  const [lineageId, setLineageId] = useState<string>();
 
   return (
     <Layout>
       <LeftPane>
         <DataImportPanel onSelect={setDataImportId} />
-        <LineagesPanel />
+        <LineagesPanel onSelect={setLineageId} />
       </LeftPane>
       <RightPane>
         <DescendantTree dataImportId={dataImportId} rowGap={40} />

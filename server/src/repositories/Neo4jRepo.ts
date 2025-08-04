@@ -1,6 +1,6 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
-import { Person, Family, DataImport, RootInfo } from '@shared/models';
+import { Person, Family, DataImport, RootInfo, Lineage } from '@shared/models';
 
 export class Neo4jRepo {
   private driver: Driver;
@@ -180,6 +180,69 @@ export class Neo4jRepo {
     }
   }
 
+  public async loadLineages(): Promise<Lineage[]> {
+    console.log('Neo4jRepo: Loading lineages');
+
+    const session = this.driver.session();
+
+    try {
+      const result = await session.run(
+        `MATCH (l:Lineage)
+         OPTIONAL MATCH (p:Person)-[:FOUNDED]->(l)
+         RETURN l, p
+         ORDER BY l.name`,
+      );
+
+      const lineages: Lineage[] = result.records.map((r) => ({
+        id: r.get('l').properties.id,
+        name: r.get('l').properties.name,
+        founderId: r.get('p')?.properties.id,
+        createdAt: r.get('l').properties.createdAt,
+      }));
+
+      console.log('Neo4jRepo: Loaded lineages:', lineages.length);
+      return lineages;
+    } catch (err) {
+      console.error('Neo4jRepo: Failed to load lineages:', err);
+      return [];
+    } finally {
+      await session.close();
+    }
+  }
+
+  public async saveLineage(lineage: Lineage): Promise<boolean> {
+    console.log(`Neo4jRepo: Saving lineage ${lineage.id}`);
+
+    const session = this.driver.session();
+
+    // Step 1: Save the Lineage node
+    try {
+      const result = await session.run(
+        `MERGE (l:Lineage {id: $id})
+         SET l.name = $name,
+             l.createdAt = $createdAt
+         RETURN l`,
+        lineage,
+      );
+
+      if (result.records.length === 0) {
+        console.error(`Neo4jRepo: Failed to save lineage ${lineage.id}`);
+        return false;
+      }
+    } catch (err) {
+      console.error(`Neo4jRepo: Failed to save lineage ${lineage.id}:`, err);
+      return false;
+    } finally {
+      await session.close();
+    }
+
+    // Step 2: Connect root person to Lineage
+    const result = await this.linkPersonToLineage(lineage.founderId, lineage.id);
+    if (!result) return false;
+
+    return true;
+  }
+
   public async savePerson(person: Person): Promise<boolean> {
     console.log(`Neo4jRepo: Saving person ${person.id}`);
 
@@ -291,6 +354,43 @@ export class Neo4jRepo {
     } catch (err) {
       console.error(
         `Neo4jRepo: Failed to save ${role} link from person ${personId} to family ${familyId}:`,
+        err,
+      );
+      return false;
+    } finally {
+      await session.close();
+    }
+  }
+
+  public async linkPersonToLineage(
+    personId: string,
+    lineageId: string,
+  ): Promise<boolean> {
+    console.log(`Neo4jRepo: Saving FOUNDED link from person ${personId} to lineage ${lineageId}`);
+
+    const session = this.driver.session();
+
+    try {
+      const result = await session.run(
+        `MATCH (p:Person {id: $personId}), (f:Lineage {id: $lineageId})
+         MERGE (p)-[:FOUNDED]->(f)
+         RETURN p`,
+        { personId, lineageId },
+      );
+
+      if (result.records.length === 0) {
+        console.error(
+          `Neo4jRepo: Failed to save FOUNDED link from person ${personId} to family ${lineageId}`,
+        );
+        return false;
+      }
+
+      console.log(`Neo4jRepo: FOUNDED link from person ${personId} to family ${lineageId} saved`);
+
+      return true;
+    } catch (err) {
+      console.error(
+        `Neo4jRepo: Failed to save FOUNDED link from person ${personId} to family ${lineageId}:`,
         err,
       );
       return false;
