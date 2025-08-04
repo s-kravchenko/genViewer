@@ -41,7 +41,7 @@ export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeP
   useEffect(() => {
     if (!dataImportId) return;
 
-    fetch(`/api/data-import/${dataImportId}`)
+    fetch(`/api/import/${dataImportId}`)
       .then((res) => res.json())
       .then((data: DataImportResponse) => {
         const layoutManager = new LayoutManager(data.dataImport, data.people, data.families);

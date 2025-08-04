@@ -39,9 +39,9 @@ export function DataImportSelector({ current, onSelect }: DataImportSelectorProp
 
   useEffect(() => {
     console.log('Fetching data imports');
-    fetch('/api/data-imports')
+    fetch('/api/import')
       .then((res) => res.json())
-      .then(setDataImports);
+      .then((data: DataImport[]) => setDataImports(data));
   }, [current]);
 
   const tooltip = (dataImport: DataImport) => {

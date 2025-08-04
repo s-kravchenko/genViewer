@@ -27,9 +27,9 @@ export default function RootsDialog({ open, onClose }: RootsDialogProps) {
     if (!open) return;
 
     console.log('Fetching roots');
-    fetch('/api/roots')
+    fetch('/api/root')
       .then((res) => res.json())
-      .then(setRoots);
+      .then((data: RootInfo[]) => setRoots(data));
   }, [open]);
 
   return (
