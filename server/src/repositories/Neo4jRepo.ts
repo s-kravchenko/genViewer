@@ -1,6 +1,6 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
-import { Person, Family, DataImport } from '@shared/models';
+import { Person, Family, DataImport, RootInfo } from '@shared/models';
 
 export class Neo4jRepo {
   private driver: Driver;
@@ -138,6 +138,46 @@ export class Neo4jRepo {
     }
 
     return true;
+  }
+
+  public async loadRoots(): Promise<RootInfo[]> {
+    console.log('Neo4jRepo: Loading roots');
+
+    const session = this.driver.session();
+
+    try {
+      const result = await session.run(
+        `MATCH (root:Person)
+         WHERE root.sex = 'male' AND NOT (root)-[:CHILD_IN]->(:Family)
+         CALL apoc.path.expandConfig(root, {
+           relationshipFilter: "HUSBAND_IN|WIFE_IN>,CHILD_IN<",
+           maxLevel: 20,
+           uniqueness: "NODE_GLOBAL"
+         }) YIELD path
+         WITH root, last(nodes(path)) AS descendant
+         WHERE root <> descendant AND descendant:Person
+         WITH
+           root,
+           COUNT(DISTINCT elementId(descendant)) AS descendantCount
+         RETURN
+           root,
+           descendantCount
+         ORDER BY descendantCount DESC`,
+      );
+
+      const roots: RootInfo[] = result.records.map((r) => ({
+        root: r.get('root').properties,
+        descendantCount: r.get('descendantCount').toNumber(),
+      }));
+
+      console.log('Neo4jRepo: Loaded roots:', roots.length);
+      return roots;
+    } catch (err) {
+      console.error('Neo4jRepo: Failed to load roots:', err);
+      return [];
+    } finally {
+      await session.close();
+    }
   }
 
   public async savePerson(person: Person): Promise<boolean> {

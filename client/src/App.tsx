@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { DataImportPanel } from './components/DataImportPanel';
+import { LineagesPanel } from './components/LineagesPanel';
 import { DescendantTree } from './components/DescendantTree';
 
 const Layout = styled.div`
@@ -30,6 +31,7 @@ function App() {
     <Layout>
       <LeftPane>
         <DataImportPanel onSelect={setDataImportId} />
+        <LineagesPanel />
       </LeftPane>
       <RightPane>
         <DescendantTree dataImportId={dataImportId} rowGap={40} />
