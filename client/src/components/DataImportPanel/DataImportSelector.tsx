@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { DataImport } from '@shared/models';
-import { ImportApi } from '../../api/ImportApi';
+import { fetchDataImports } from '../../api/importApi';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -39,7 +39,7 @@ export function DataImportSelector({ current, onSelect }: DataImportSelectorProp
   const [dataImports, setDataImports] = useState<DataImport[]>([]);
 
   useEffect(() => {
-    ImportApi.fetchDataImports()
+    fetchDataImports()
     .then((data) => {
       if (!data) return; // TODO: handle error
       setDataImports(data);

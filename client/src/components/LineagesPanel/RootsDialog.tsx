@@ -12,7 +12,7 @@ import {
   TableBody,
 } from '@mui/material';
 import { RootResponse } from '@shared/contracts';
-import { LineageApi } from '../../api/LineageApi';
+import { fetchRoots } from '../../api/lineageApi';
 
 type RootsDialogProps = {
   open: boolean;
@@ -27,7 +27,7 @@ export default function RootsDialog({ open, onClose }: RootsDialogProps) {
     setIsActive(open);
     if (!open) return;
 
-    LineageApi.fetchRoots().then((data) => {
+    fetchRoots().then((data) => {
       if (!data) return; // TODO: handle error
       setRoots(data);
     });

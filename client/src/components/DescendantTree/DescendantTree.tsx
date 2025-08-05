@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { ImportApi } from '../../api/ImportApi';
+import { fetchDataImport } from '../../api/importApi';
 import { LayoutManager, PositionedNode } from './LayoutManager';
 import PersonCard from './PersonCard';
 import ConnectorsLayer from './ConnectorsLayer';
@@ -41,7 +41,7 @@ export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeP
   useEffect(() => {
     if (!dataImportId) return;
 
-    ImportApi.fetchDataImport(dataImportId)
+    fetchDataImport(dataImportId)
       .then((data) => {
         if (!data) return; // TODO: handle error
 

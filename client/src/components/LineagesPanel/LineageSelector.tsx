@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { Lineage } from '@shared/models';
-import { LineageApi } from '../../api/LineageApi';
+import { fetchLineages } from '../../api/lineageApi';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -39,7 +39,7 @@ export function LineageSelector({ current, onSelect }: LineageSelectorProps) {
   const [lineages, setLineages] = useState<Lineage[]>([]);
 
   useEffect(() => {
-    LineageApi.fetchLineages().then((data) => {
+    fetchLineages().then((data) => {
       if (!data) return; // TODO: handle error
       setLineages(data);
     });

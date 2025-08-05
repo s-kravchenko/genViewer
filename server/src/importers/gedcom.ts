@@ -5,7 +5,7 @@ import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
 import { DataImport } from '@shared/models/DataImport';
-import { Neo4jRepo } from '../repositories/Neo4jRepo';
+import { saveDataImport } from '../repositories/neo4j/dataImport.repository';
 
 export class GedcomImporter {
   public async import(originalFileName: string, filePath: string): Promise<DataImport> {
@@ -44,8 +44,7 @@ export class GedcomImporter {
     };
 
     // Load the data import into the database
-    const repo = new Neo4jRepo();
-    const importResult = await repo.saveDataImport(people, families, dataImport);
+    const importResult = await saveDataImport(people, families, dataImport);
 
     if (!importResult) {
       throw new Error('Failed to import GEDCOM data');

@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { ImportApi } from '../../api/ImportApi';
+import { importGedcom } from '../../api/importApi';
 
 type GedcomFileUploaderProps = {
   onUploaded: (id: string) => void;
@@ -14,7 +14,7 @@ export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderPro
 
     if (!file) return;
 
-    const dataImport = await ImportApi.importGedcom(file);
+    const dataImport = await importGedcom(file);
     if (!dataImport) return; // TODO: handle error
 
     console.log('GEDCOM file uploaded successfully:', dataImport);
