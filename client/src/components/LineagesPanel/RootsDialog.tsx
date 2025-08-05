@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { RootInfo } from '@shared/models';
 import {
   Dialog,
   DialogTitle,
@@ -12,6 +11,8 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
+import { RootResponse } from '@shared/contracts';
+import { LineageApi } from '../../api/LineageApi';
 
 type RootsDialogProps = {
   open: boolean;
@@ -20,16 +21,16 @@ type RootsDialogProps = {
 
 export default function RootsDialog({ open, onClose }: RootsDialogProps) {
   const [isActive, setIsActive] = useState(open);
-  const [roots, setRoots] = useState<RootInfo[]>([]);
+  const [roots, setRoots] = useState<RootResponse[]>([]);
 
   useEffect(() => {
     setIsActive(open);
     if (!open) return;
 
-    console.log('Fetching roots');
-    fetch('/api/root')
-      .then((res) => res.json())
-      .then((data: RootInfo[]) => setRoots(data));
+    LineageApi.fetchRoots().then((data) => {
+      if (!data) return; // TODO: handle error
+      setRoots(data);
+    });
   }, [open]);
 
   return (

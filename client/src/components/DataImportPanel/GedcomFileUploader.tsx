@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react';
+import { ImportApi } from '../../api/ImportApi';
 
 type GedcomFileUploaderProps = {
   onUploaded: (id: string) => void;
@@ -7,27 +8,17 @@ type GedcomFileUploaderProps = {
 export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderProps) {
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('gedcom', file);
-
-    try {
-      const response = await fetch('/api/import/gedcom', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      console.log('Upload result:', result);
-
-      onUploaded(result.id);
-    } catch (error) {
-      console.error('Upload failed:', error);
-    }
 
     // Reset the input so the same file can be processed again
     event.target.value = '';
+
+    if (!file) return;
+
+    const dataImport = await ImportApi.importGedcom(file);
+    if (!dataImport) return; // TODO: handle error
+
+    console.log('GEDCOM file uploaded successfully:', dataImport);
+    onUploaded(dataImport.id);
   };
 
   return (

@@ -21,16 +21,9 @@ router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
       req.file.path,
     );
 
-    const { id, originalFileName, filePath, createdAt } = dataImport;
-    const response = {
-      id,
-      originalFileName,
-      filePath,
-      createdAt,
-    };
-    console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, response);
+    console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, dataImport);
 
-    res.status(201).send(response);
+    res.status(201).send(dataImport);
   } catch (err) {
     console.error('GEDCOM import failed:', err);
     res.status(500).send({ error: 'Upload failed' });

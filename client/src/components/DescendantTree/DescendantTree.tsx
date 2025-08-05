@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { DataImportResponse } from '@shared/contracts/DataImportResponse';
+import { ImportApi } from '../../api/ImportApi';
 import { LayoutManager, PositionedNode } from './LayoutManager';
 import PersonCard from './PersonCard';
 import ConnectorsLayer from './ConnectorsLayer';
@@ -41,13 +41,14 @@ export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeP
   useEffect(() => {
     if (!dataImportId) return;
 
-    fetch(`/api/import/${dataImportId}`)
-      .then((res) => res.json())
-      .then((data: DataImportResponse) => {
+    ImportApi.fetchDataImport(dataImportId)
+      .then((data) => {
+        if (!data) return; // TODO: handle error
+
         const layoutManager = new LayoutManager(data.dataImport, data.people, data.families);
         const nodes = layoutManager.apply();
         setNodeMap(nodes);
-      });
+      })
   }, [dataImportId]);
 
   const getMaxCol = () => {

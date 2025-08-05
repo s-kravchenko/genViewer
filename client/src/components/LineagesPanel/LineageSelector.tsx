@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { Lineage } from '@shared/models';
+import { LineageApi } from '../../api/LineageApi';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -38,10 +39,10 @@ export function LineageSelector({ current, onSelect }: LineageSelectorProps) {
   const [lineages, setLineages] = useState<Lineage[]>([]);
 
   useEffect(() => {
-    console.log('Fetching lineages');
-    fetch('/api/lineage')
-      .then((res) => res.json())
-      .then(setLineages);
+    LineageApi.fetchLineages().then((data) => {
+      if (!data) return; // TODO: handle error
+      setLineages(data);
+    });
   }, [current]);
 
   const tooltip = (lineage: Lineage) => {

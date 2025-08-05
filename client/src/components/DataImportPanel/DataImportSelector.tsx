@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { DataImport } from '@shared/models';
+import { ImportApi } from '../../api/ImportApi';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -38,10 +39,11 @@ export function DataImportSelector({ current, onSelect }: DataImportSelectorProp
   const [dataImports, setDataImports] = useState<DataImport[]>([]);
 
   useEffect(() => {
-    console.log('Fetching data imports');
-    fetch('/api/import')
-      .then((res) => res.json())
-      .then((data: DataImport[]) => setDataImports(data));
+    ImportApi.fetchDataImports()
+    .then((data) => {
+      if (!data) return; // TODO: handle error
+      setDataImports(data);
+    });
   }, [current]);
 
   const tooltip = (dataImport: DataImport) => {

@@ -1,7 +1,7 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
-import { Person, Family, DataImport, RootInfo, Lineage } from '@shared/models';
-import { DataImportResponse } from '@shared/contracts/DataImportResponse';
+import { Person, Family, DataImport, Lineage } from '@shared/models';
+import { DataImportResponse, RootResponse } from '@shared/contracts';
 
 export class Neo4jRepo {
   private driver: Driver;
@@ -145,7 +145,7 @@ export class Neo4jRepo {
     return true;
   }
 
-  public async loadRoots(): Promise<RootInfo[]> {
+  public async loadRoots(): Promise<RootResponse[]> {
     console.log('Neo4jRepo: Loading roots');
 
     const session = this.driver.session();
@@ -170,7 +170,7 @@ export class Neo4jRepo {
          ORDER BY descendantCount DESC`,
       );
 
-      const roots: RootInfo[] = result.records.map((r) => ({
+      const roots: RootResponse[] = result.records.map((r) => ({
         root: r.get('root').properties,
         descendantCount: r.get('descendantCount').toNumber(),
       }));
