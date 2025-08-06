@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { DataImport } from '@shared/models';
-import { fetchDataImports } from '../../api/importApi';
+import ImportContext from '../../contexts/ImportContext';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -30,21 +30,8 @@ const DataImportItem = styled.li<{ selected?: boolean }>`
   }
 `;
 
-type DataImportSelectorProps = {
-  current?: string;
-  onSelect: (id: string) => void;
-};
-
-export function DataImportSelector({ current, onSelect }: DataImportSelectorProps) {
-  const [dataImports, setDataImports] = useState<DataImport[]>([]);
-
-  useEffect(() => {
-    fetchDataImports()
-    .then((data) => {
-      if (!data) return; // TODO: handle error
-      setDataImports(data);
-    });
-  }, [current]);
+export function DataImportSelector() {
+  const { state, actions } = useContext(ImportContext)!;
 
   const tooltip = (dataImport: DataImport) => {
     const createdAt = daysjs(dataImport.createdAt).format('MMMM D YYYY, HH:mm:ss');
@@ -54,8 +41,14 @@ export function DataImportSelector({ current, onSelect }: DataImportSelectorProp
   return (
     <Wrapper>
       <DataImportList>
-        {dataImports.map((i) => (
-          <DataImportItem key={i.id} selected={i.id === current} onClick={() => onSelect(i.id)}>
+        {state.dataImports.map((i) => (
+          <DataImportItem
+            key={i.id}
+            selected={i.id === state.currentImportId}
+            onClick={() => {
+              actions.selectImport(i.id);
+            }}
+          >
             <div title={tooltip(i)}>
               {i.originalFileName}
             </div>

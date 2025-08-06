@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
+import LineageContext from '../../contexts/LineageContext';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
 import { Lineage } from '@shared/models';
-import { fetchLineages } from '../../api/lineageApi';
 
 const Wrapper = styled.div`
   max-width: 400px;
@@ -30,20 +30,8 @@ const LineageItem = styled.li<{ selected?: boolean }>`
   }
 `;
 
-type LineageSelectorProps = {
-  current?: string;
-  onSelect: (id: string) => void;
-};
-
-export function LineageSelector({ current, onSelect }: LineageSelectorProps) {
-  const [lineages, setLineages] = useState<Lineage[]>([]);
-
-  useEffect(() => {
-    fetchLineages().then((data) => {
-      if (!data) return; // TODO: handle error
-      setLineages(data);
-    });
-  }, [current]);
+export function LineageSelector() {
+  const { state, actions } = useContext(LineageContext)!;
 
   const tooltip = (lineage: Lineage) => {
     const createdAt = daysjs(lineage.createdAt).format('MMMM D YYYY, HH:mm:ss');
@@ -53,8 +41,8 @@ export function LineageSelector({ current, onSelect }: LineageSelectorProps) {
   return (
     <Wrapper>
       <LineageList>
-        {lineages.map((i) => (
-          <LineageItem key={i.id} selected={i.id === current} onClick={() => onSelect(i.id)}>
+        {state.lineages.map((i) => (
+          <LineageItem key={i.id} selected={i.id === state.currentLineageId} onClick={() => actions.selectLineage(i.id)}>
             <div title={tooltip(i)}>{i.name}</div>
           </LineageItem>
         ))}

@@ -1,11 +1,10 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 import { importGedcom } from '../../api/importApi';
+import ImportContext from '../../contexts/ImportContext';
 
-type GedcomFileUploaderProps = {
-  onUploaded: (id: string) => void;
-};
+export default function GedcomFileUploader() {
+  const { state, actions } = useContext(ImportContext)!;
 
-export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderProps) {
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -18,7 +17,9 @@ export default function GedcomFileUploader({ onUploaded }: GedcomFileUploaderPro
     if (!dataImport) return; // TODO: handle error
 
     console.log('GEDCOM file uploaded successfully:', dataImport);
-    onUploaded(dataImport.id);
+
+    await actions.fetchImports();
+    await actions.selectImport(dataImport.id);
   };
 
   return (

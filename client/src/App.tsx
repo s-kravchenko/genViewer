@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { DataImportPanel } from './components/DataImportPanel';
 import { LineagesPanel } from './components/LineagesPanel';
 import { DescendantTree } from './components/DescendantTree';
+import { ImportProvider } from './contexts/ImportContext';
+import { LineageProvider } from './contexts/LineageContext';
 
 const Layout = styled.div`
   display: flex;
@@ -25,18 +26,19 @@ const RightPane = styled.div`
 `;
 
 function App() {
-  const [dataImportId, setDataImportId] = useState<string>();
-  const [lineageId, setLineageId] = useState<string>();
-
   return (
     <Layout>
-      <LeftPane>
-        <DataImportPanel onSelect={setDataImportId} />
-        <LineagesPanel onSelect={setLineageId} />
-      </LeftPane>
-      <RightPane>
-        <DescendantTree dataImportId={dataImportId} rowGap={40} />
-      </RightPane>
+      <ImportProvider>
+        <LineageProvider>
+          <LeftPane>
+            <DataImportPanel />
+            <LineagesPanel />
+          </LeftPane>
+          <RightPane>
+            <DescendantTree rowGap={40} />
+          </RightPane>
+        </LineageProvider>
+      </ImportProvider>
     </Layout>
   );
 }

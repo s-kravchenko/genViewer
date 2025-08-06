@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import ImportContext from '../../contexts/ImportContext';
 import styled from 'styled-components';
-import { fetchDataImport } from '../../api/importApi';
 import { LayoutManager, PositionedNode } from './LayoutManager';
 import PersonCard from './PersonCard';
 import ConnectorsLayer from './ConnectorsLayer';
@@ -30,33 +30,38 @@ const GridCell = styled.div<{ $row: string | number; $col: string | number }>`
 `;
 
 interface DescendantTreeProps {
-  dataImportId?: string;
   rowGap: number;
 }
 
-export default function DescendantTree({ dataImportId, rowGap }: DescendantTreeProps) {
+export default function DescendantTree({ rowGap }: DescendantTreeProps) {
+  const { state, actions } = useContext(ImportContext)!;
+
   const treeRef = useRef<HTMLDivElement>(null);
   const [nodeMap, setNodeMap] = useState<Map<string, PositionedNode>>(new Map());
 
   useEffect(() => {
-    if (!dataImportId) return;
+    if (!state.currentImport) {
+      setNodeMap(new Map()); // Clear out old layout
+      return;
+    }
 
-    fetchDataImport(dataImportId)
-      .then((data) => {
-        if (!data) return; // TODO: handle error
+    const layoutManager = new LayoutManager(
+      state.currentImport.dataImport,
+      state.currentImport.people,
+      state.currentImport.families,
+    );
+    const nodes = layoutManager.apply();
+    setNodeMap(nodes);
+  }, [state.currentImport]);
 
-        const layoutManager = new LayoutManager(data.dataImport, data.people, data.families);
-        const nodes = layoutManager.apply();
-        setNodeMap(nodes);
-      })
-  }, [dataImportId]);
+  if (!state.currentImport || nodeMap.size === 0) {
+    return null;
+  }
 
   const getMaxCol = () => {
     if (!nodeMap.size) return 0;
     return Math.max(...Array.from(nodeMap.values()).map((p) => p.gridColumn + p.columnSpan - 1));
   };
-
-  if (!nodeMap.size) return null;
 
   return (
     <TreeWrapper>

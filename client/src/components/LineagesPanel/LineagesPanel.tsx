@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import RootsDialog from './RootsDialog';
 import { LineageSelector } from './LineageSelector';
 
-type LineagePanelProps = {
-  onSelect: (lineageId: string) => void;
-};
-
-export default function LineagesPanel(props: LineagePanelProps) {
+export default function LineagesPanel() {
   const [showDialog, setShowDialog] = useState(false);
-  const [lineageId, setLineageId] = useState<string>();
 
   return (
     <>
@@ -16,13 +11,7 @@ export default function LineagesPanel(props: LineagePanelProps) {
       <button onClick={() => setShowDialog(true)}>Show Roots</button>
       <RootsDialog open={showDialog} onClose={() => setShowDialog(false)} />
 
-      <LineageSelector
-        current={lineageId}
-        onSelect={(newId) => {
-          setLineageId(newId);
-          props.onSelect(newId);
-        }}
-      />
+      <LineageSelector />
     </>
   );
 }

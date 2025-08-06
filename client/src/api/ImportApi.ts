@@ -1,62 +1,38 @@
 import { DataImport } from '@shared/models';
 import { DataImportResponse } from '@shared/contracts';
 
-export async function fetchDataImports(): Promise<DataImport[] | null> {
+export async function fetchDataImports(): Promise<DataImport[]> {
   console.log('Fetching data imports');
 
-  try {
-    const response = await fetch(`/api/import`);
-    if (!response.ok) {
-      console.error('Failed to fetch data imports');
-      return null;
-    }
+  const response = await fetch(`/api/import`);
+  if (!response.ok) throw new Error('Failed to fetch data imports');
 
-    console.log('Data imports fetched');
-    return response.json();
-  } catch (error) {
-    console.error('Failed to fetch data imports:', error);
-    return null;
-  }
+  console.log('Data imports fetched');
+  return response.json();
 }
 
-export async function fetchDataImport(id: string): Promise<DataImportResponse | null> {
+export async function fetchDataImport(id: string): Promise<DataImportResponse> {
   console.log(`Fetching data import ${id}`);
 
-  try {
-    const response = await fetch(`/api/import/${id}`);
-    if (!response.ok) {
-      console.error(`Failed to fetch data import ${id}`);
-      return null;
-    }
+  const response = await fetch(`/api/import/${id}`);
+  if (!response.ok) throw new Error(`Failed to fetch data import ${id}`);
 
-    console.log(`Data import ${id} fetched`);
-    return response.json();
-  } catch (error) {
-    console.error(`Failed to fetch data import ${id}:`, error);
-    return null;
-  }
+  console.log(`Data import ${id} fetched`);
+  return response.json();
 }
 
-export async function importGedcom(file: string | Blob): Promise<DataImport | null> {
+export async function importGedcom(file: string | Blob): Promise<DataImport> {
   console.log('Importing GEDCOM data');
 
   const formData = new FormData();
   formData.append('gedcom', file);
 
-  try {
-    const response = await fetch('/api/import/gedcom', {
-      method: 'POST',
-      body: formData,
-    });
+  const response = await fetch('/api/import/gedcom', {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) throw new Error('Failed to import GEDCOM data');
 
-    if (!response.ok) {
-      console.error('Failed to import GEDCOM data');
-      return null;
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error('Failed to import GEDCOM data:', error);
-    return null;
-  }
+  console.log('GEDCOM data imported');
+  return response.json();
 }
