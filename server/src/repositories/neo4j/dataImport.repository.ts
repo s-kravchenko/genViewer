@@ -1,6 +1,5 @@
 import { neo4j } from './neo4j.connector';
-import { Person, Family, DataImport } from '@shared/models';
-import { DataImportResponse } from '@shared/contracts';
+import { Person, Family, DataImport, DataImportDetails } from '@shared/models';
 import { savePerson } from './person.repository';
 import { saveFamily } from './family.repository';
 import { linkNodeToDataImport } from './relationship.repository';
@@ -28,8 +27,8 @@ export async function loadDataImports(): Promise<DataImport[]> {
   }
 }
 
-export async function loadDataImport(id: string): Promise<DataImportResponse | null> {
-  console.log('Loading data import:', id);
+export async function loadDataImportDetails(id: string): Promise<DataImportDetails | null> {
+  console.log('Loading data import details:', id);
 
   const session = neo4j.session();
 
@@ -54,7 +53,7 @@ export async function loadDataImport(id: string): Promise<DataImportResponse | n
     );
 
     if (result.records.length === 0) {
-      console.error(`Failed to load data import ${id}`);
+      console.error(`Failed to load data import details ${id}`);
       return null;
     }
 
@@ -74,19 +73,19 @@ export async function loadDataImport(id: string): Promise<DataImportResponse | n
     console.log(`Loaded ${families.length} families`);
 
     return {
-      dataImport: dataImport,
+      ...dataImport,
       people,
       families,
     };
   } catch (err) {
-    console.error(`Failed to load data import ${id}:`, err);
+    console.error(`Failed to load data import details ${id}:`, err);
     return null;
   } finally {
     await session.close();
   }
 }
 
-export async function saveDataImport(
+export async function saveDataImportDetails(
   people: Person[],
   families: Family[],
   dataImport: DataImport,

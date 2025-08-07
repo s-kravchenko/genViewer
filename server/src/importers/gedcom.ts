@@ -5,7 +5,7 @@ import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
 import { DataImport } from '@shared/models/DataImport';
-import { saveDataImport } from '../repositories/neo4j/dataImport.repository';
+import { saveDataImportDetails } from '../repositories/neo4j/dataImport.repository';
 
 export class GedcomImporter {
   public async import(originalFileName: string, filePath: string): Promise<DataImport> {
@@ -44,7 +44,7 @@ export class GedcomImporter {
     };
 
     // Load the data import into the database
-    const importResult = await saveDataImport(people, families, dataImport);
+    const importResult = await saveDataImportDetails(people, families, dataImport);
 
     if (!importResult) {
       throw new Error('Failed to import GEDCOM data');
@@ -92,7 +92,9 @@ export class GedcomImporter {
       deathDate: this.normalizeGedcomDate(ind.getEventDeath()?.getDate()?.toString() ?? ''),
       sex,
 
-      familyIds: ind.getFamilyAsSpouse()
+      familyIds:
+        ind
+          .getFamilyAsSpouse()
           .arraySelect()
           .map((fam) => gedcomIdToUuidMap[fam.pointer()[0]?.toString() ?? '']) ?? [],
 

@@ -1,5 +1,4 @@
-import { DataImport } from '@shared/models';
-import { DataImportResponse } from '@shared/contracts';
+import { DataImport, DataImportDetails } from '@shared/models';
 
 export async function fetchDataImports(): Promise<DataImport[]> {
   console.log('Fetching data imports');
@@ -11,7 +10,7 @@ export async function fetchDataImports(): Promise<DataImport[]> {
   return response.json();
 }
 
-export async function fetchDataImport(id: string): Promise<DataImportResponse> {
+export async function fetchDataImportDetails(id: string): Promise<DataImportDetails> {
   console.log(`Fetching data import ${id}`);
 
   const response = await fetch(`/api/import/${id}`);

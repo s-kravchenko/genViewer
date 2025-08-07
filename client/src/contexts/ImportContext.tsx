@@ -1,12 +1,11 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
-import { DataImport } from '@shared/models';
-import { DataImportResponse } from '@shared/contracts';
-import { fetchDataImports, fetchDataImport } from 'src/api/importApi';
+import { DataImport, DataImportDetails } from '@shared/models';
+import { fetchDataImports, fetchDataImportDetails } from 'src/api/importApi';
 
 interface State {
   dataImports: DataImport[];
   currentImportId: string | null;
-  currentImport: DataImportResponse | null;
+  currentImport: DataImportDetails | null;
   ui: {
     loading: boolean;
     error: string | null;
@@ -18,7 +17,7 @@ type Action =
   | { type: 'LOADING_ERROR'; error: string }
   | { type: 'SET_DATA_IMPORTS'; payload: DataImport[] }
   | { type: 'SET_CURRENT_IMPORT_ID'; payload: string }
-  | { type: 'SET_CURRENT_IMPORT'; payload: DataImportResponse };
+  | { type: 'SET_CURRENT_IMPORT'; payload: DataImportDetails };
 
 function importReducer(state: State, action: Action) {
   switch (action.type) {
@@ -72,14 +71,14 @@ export function ImportProvider({ children }: { children: ReactNode }) {
     fetchDataImports()
       .then((data) => dispatch({ type: 'SET_DATA_IMPORTS', payload: data }))
       .catch((err) => dispatch({ type: 'LOADING_ERROR', error: err.message }));
-  }
+  };
 
   const selectImport = async (importId: string) => {
     dispatch({ type: 'SET_CURRENT_IMPORT_ID', payload: importId });
     dispatch({ type: 'LOADING_START' });
     try {
-      const dataImportResponse = await fetchDataImport(importId);
-      dispatch({ type: 'SET_CURRENT_IMPORT', payload: dataImportResponse });
+      const dataImportDetails = await fetchDataImportDetails(importId);
+      dispatch({ type: 'SET_CURRENT_IMPORT', payload: dataImportDetails });
     } catch (err: any) {
       dispatch({ type: 'LOADING_ERROR', error: err.message });
     }

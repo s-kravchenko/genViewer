@@ -45,11 +45,7 @@ export default function DescendantTree({ rowGap }: DescendantTreeProps) {
       return;
     }
 
-    const layoutManager = new LayoutManager(
-      state.currentImport.dataImport,
-      state.currentImport.people,
-      state.currentImport.families,
-    );
+    const layoutManager = new LayoutManager(state.currentImport);
     const nodes = layoutManager.apply();
     setNodeMap(nodes);
   }, [state.currentImport]);

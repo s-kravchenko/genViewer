@@ -1,3 +1,5 @@
+import { Person } from './Person';
+import { Family } from './Family';
 export interface DataImport {
   id: string;
 
@@ -7,4 +9,9 @@ export interface DataImport {
 
   personIds: string[];
   familyIds: string[];
-};
+}
+
+export interface DataImportDetails extends DataImport {
+  people: Person[];
+  families: Family[];
+}

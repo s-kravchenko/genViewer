@@ -2,7 +2,10 @@ import express from 'express';
 import { DataImport } from '@shared/models/DataImport';
 import { upload } from '../middleware/multer';
 import { GedcomImporter } from '../importers/gedcom';
-import { loadDataImports, loadDataImport } from '../repositories/neo4j/dataImport.repository';
+import {
+  loadDataImports,
+  loadDataImportDetails,
+} from '../repositories/neo4j/dataImport.repository';
 
 const router = express.Router();
 
@@ -43,7 +46,7 @@ router.get('/api/import/:id', async (req, res) => {
   console.log(`Request received: GET /api/import/:id=${req.params.id}`);
 
   const id = req.params.id;
-  const dataImport = await loadDataImport(id);
+  const dataImport = await loadDataImportDetails(id);
   console.log(`GET /api/import/:id=${req.params.id} successful, HTTP 200 OK`);
 
   res.status(200).json(dataImport);
