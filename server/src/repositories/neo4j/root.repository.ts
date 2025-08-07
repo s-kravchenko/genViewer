@@ -1,7 +1,7 @@
 import { neo4j } from './neo4j.connector';
-import { RootResponse } from '@shared/contracts';
+import { PersonDetails } from '@shared/models';
 
-export async function loadRoots(): Promise<RootResponse[]> {
+export async function loadRoots(): Promise<PersonDetails[]> {
   console.log('Loading roots');
 
   const session = neo4j.session();
@@ -26,8 +26,8 @@ export async function loadRoots(): Promise<RootResponse[]> {
         ORDER BY descendantCount DESC`,
     );
 
-    const roots: RootResponse[] = result.records.map((r) => ({
-      root: r.get('root').properties,
+    const roots: PersonDetails[] = result.records.map((r) => ({
+      ...r.get('root').properties,
       descendantCount: r.get('descendantCount').toNumber(),
     }));
 

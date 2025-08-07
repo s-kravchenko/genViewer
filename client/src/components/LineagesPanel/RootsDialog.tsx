@@ -11,7 +11,7 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import { RootResponse } from '@shared/contracts';
+import { PersonDetails } from '@shared/models';
 import { fetchRoots } from '../../api/lineageApi';
 
 type RootsDialogProps = {
@@ -21,7 +21,7 @@ type RootsDialogProps = {
 
 export default function RootsDialog({ open, onClose }: RootsDialogProps) {
   const [isActive, setIsActive] = useState(open);
-  const [roots, setRoots] = useState<RootResponse[]>([]);
+  const [roots, setRoots] = useState<PersonDetails[]>([]);
 
   useEffect(() => {
     setIsActive(open);
@@ -48,7 +48,7 @@ export default function RootsDialog({ open, onClose }: RootsDialogProps) {
             <TableBody>
               {roots.map((rootInfo, idx) => (
                 <TableRow key={idx}>
-                  <TableCell>{rootInfo.root.surname}</TableCell>
+                  <TableCell>{rootInfo.surname}</TableCell>
                   <TableCell>{rootInfo.descendantCount}</TableCell>
                 </TableRow>
               ))}

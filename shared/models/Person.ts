@@ -17,3 +17,7 @@ export interface Person {
     };
   } & Record<string, any>;
 };
+
+export interface PersonDetails extends Person {
+  descendantCount: number;
+};

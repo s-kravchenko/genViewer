@@ -1,12 +1,11 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
 import { Lineage } from '@shared/models';
-import { RootResponse } from '@shared/contracts';
 import { fetchLineages, fetchLineage } from 'src/api/lineageApi';
 
 interface State {
   lineages: Lineage[];
   currentLineageId: string | null;
-  currentLineage: RootResponse | null;
+  currentLineage: Lineage | null;
   ui: {
     loading: boolean;
     error: string | null;
@@ -18,7 +17,7 @@ type Action =
   | { type: 'LOADING_ERROR'; error: string }
   | { type: 'SET_LINEAGES'; payload: Lineage[] }
   | { type: 'SET_CURRENT_LINEAGE_ID'; payload: string }
-  | { type: 'SET_CURRENT_LINEAGE'; payload: RootResponse };
+  | { type: 'SET_CURRENT_LINEAGE'; payload: Lineage };
 
 function lineageReducer(state: State, action: Action) {
   switch (action.type) {

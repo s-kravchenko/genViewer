@@ -1,7 +1,6 @@
-import { Lineage } from '@shared/models';
-import { RootResponse } from '@shared/contracts';
+import { Lineage, PersonDetails } from '@shared/models';
 
-export async function fetchRoots(): Promise<RootResponse[]> {
+export async function fetchRoots(): Promise<PersonDetails[]> {
   console.log('Fetching roots');
 
   const response = await fetch(`/api/root`);
