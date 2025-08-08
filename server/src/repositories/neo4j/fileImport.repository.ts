@@ -1,40 +1,40 @@
 import { neo4j } from './neo4j.connector';
-import { Person, Family, DataImport, DataImportDetails } from '@shared/models';
+import { Person, Family, FileImport, FileImportDetails } from '@shared/models';
 import { savePerson } from './person.repository';
 import { saveFamily } from './family.repository';
-import { linkNodeToDataImport } from './relationship.repository';
+import { linkNodeToFileImport } from './relationship.repository';
 
-export async function loadDataImports(): Promise<DataImport[]> {
-  console.log('Loading data imports');
+export async function loadFileImports(): Promise<FileImport[]> {
+  console.log('Loading file imports');
 
   const session = neo4j.session();
 
   try {
     const result = await session.run(
-      `MATCH (i:DataImport)
+      `MATCH (i:FileImport)
         RETURN i`,
     );
 
-    const dataImports: DataImport[] = result.records.map((r) => r.get('i').properties);
+    const fileImports: FileImport[] = result.records.map((r) => r.get('i').properties);
 
-    console.log('Loaded data imports:', dataImports.length);
-    return dataImports;
+    console.log('Loaded file imports:', fileImports.length);
+    return fileImports;
   } catch (err) {
-    console.error('Failed to load data imports:', err);
+    console.error('Failed to load file imports:', err);
     return [];
   } finally {
     await session.close();
   }
 }
 
-export async function loadDataImportDetails(id: string): Promise<DataImportDetails | null> {
-  console.log('Loading data import details:', id);
+export async function loadFileImportDetails(id: string): Promise<FileImportDetails | null> {
+  console.log('Loading file import details:', id);
 
   const session = neo4j.session();
 
   try {
     const result = await session.run(
-      `MATCH (i:DataImport {id: $id})
+      `MATCH (i:FileImport {id: $id})
         OPTIONAL MATCH (p:Person)-[:MEMBER_OF]->(i)
         OPTIONAL MATCH (f:Family)-[:MEMBER_OF]->(i)
         OPTIONAL MATCH (f)<-[:HUSBAND_IN]-(h:Person)
@@ -53,13 +53,13 @@ export async function loadDataImportDetails(id: string): Promise<DataImportDetai
     );
 
     if (result.records.length === 0) {
-      console.error(`Failed to load data import details ${id}`);
+      console.error(`Failed to load file import details ${id}`);
       return null;
     }
 
     const record = result.records[0];
 
-    const dataImport = record.get('i').properties;
+    const fileImport = record.get('i').properties;
 
     const people: Person[] = record.get('people').map((node: any) => node.properties);
     console.log(`Loaded ${people.length} people`);
@@ -73,70 +73,70 @@ export async function loadDataImportDetails(id: string): Promise<DataImportDetai
     console.log(`Loaded ${families.length} families`);
 
     return {
-      ...dataImport,
+      ...fileImport,
       people,
       families,
     };
   } catch (err) {
-    console.error(`Failed to load data import details ${id}:`, err);
+    console.error(`Failed to load file import details ${id}:`, err);
     return null;
   } finally {
     await session.close();
   }
 }
 
-export async function saveDataImportDetails(
+export async function saveFileImportDetails(
   people: Person[],
   families: Family[],
-  dataImport: DataImport,
+  fileImport: FileImport,
 ): Promise<boolean> {
-  console.log(`Saving data import ${dataImport.id}`);
+  console.log(`Saving file import ${fileImport.id}`);
 
   const session = neo4j.session();
 
-  // Step 1: Save the DataImport node
+  // Step 1: Save the FileImport node
   try {
     const result = await session.run(
-      `MERGE (i:DataImport {id: $id})
+      `MERGE (i:FileImport {id: $id})
         SET i.originalFileName = $originalFileName,
             i.filePath = $filePath,
             i.createdAt = $createdAt
         RETURN i`,
-      dataImport,
+      fileImport,
     );
 
     if (result.records.length === 0) {
-      console.error(`Failed to save data import ${dataImport.id}`);
+      console.error(`Failed to save file import ${fileImport.id}`);
       return false;
     }
   } catch (err) {
-    console.error(`Failed to save data import ${dataImport.id}:`, err);
+    console.error(`Failed to save file import ${fileImport.id}:`, err);
     return false;
   } finally {
     await session.close();
   }
 
   // Step 2: Save Person nodes
-  for (const personId of dataImport.personIds) {
+  for (const personId of fileImport.personIds) {
     const person = people.find((p) => p.id === personId);
     if (!person) return false;
 
     const personResult = await savePerson(person);
     if (!personResult) return false;
 
-    const linkResult = await linkNodeToDataImport('Person', person.id, dataImport.id);
+    const linkResult = await linkNodeToFileImport('Person', person.id, fileImport.id);
     if (!linkResult) return false;
   }
 
   // Step 3: Save Family nodes
-  for (const familyId of dataImport.familyIds) {
+  for (const familyId of fileImport.familyIds) {
     const family = families.find((f) => f.id === familyId);
     if (!family) return false;
 
     const familyResult = await saveFamily(family);
     if (!familyResult) return false;
 
-    const result = await linkNodeToDataImport('Family', family.id, dataImport.id);
+    const result = await linkNodeToFileImport('Family', family.id, fileImport.id);
     if (!result) return false;
   }
 

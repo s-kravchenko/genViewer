@@ -18,9 +18,7 @@ export async function linkPersonToFamily(
     );
 
     if (result.records.length === 0) {
-      console.error(
-        `Failed to save link '${role}' from person ${personId} to family ${familyId}`,
-      );
+      console.error(`Failed to save link '${role}' from person ${personId} to family ${familyId}`);
       return false;
     }
 
@@ -52,9 +50,7 @@ export async function linkPersonToLineage(personId: string, lineageId: string): 
     );
 
     if (result.records.length === 0) {
-      console.error(
-        `Failed to save link 'FOUNDED' from person ${personId} to family ${lineageId}`,
-      );
+      console.error(`Failed to save link 'FOUNDED' from person ${personId} to family ${lineageId}`);
       return false;
     }
 
@@ -72,40 +68,36 @@ export async function linkPersonToLineage(personId: string, lineageId: string): 
   }
 }
 
-export async function linkNodeToDataImport(
+export async function linkNodeToFileImport(
   nodeType: 'Person' | 'Family',
   nodeId: string,
-  dataImportId: string,
+  fileImportId: string,
 ): Promise<boolean> {
-  console.log(
-    `Saving link 'MEMBER_OF' from ${nodeType} ${nodeId} to data import ${dataImportId}`,
-  );
+  console.log(`Saving link 'MEMBER_OF' from ${nodeType} ${nodeId} to file import ${fileImportId}`);
 
   const session = neo4j.session();
 
   try {
     const result = await session.run(
-      `MATCH (n:${nodeType} {id: $nodeId}), (i:DataImport {id: $dataImportId})
+      `MATCH (n:${nodeType} {id: $nodeId}), (i:FileImport {id: $fileImportId})
         MERGE (n)-[:MEMBER_OF]->(i)
         RETURN n`,
-      { nodeId, dataImportId },
+      { nodeId, fileImportId },
     );
 
     if (result.records.length === 0) {
       console.error(
-        `Failed to save 'MEMBER_OF' link from ${nodeType} ${nodeId} to data import ${dataImportId}`,
+        `Failed to save 'MEMBER_OF' link from ${nodeType} ${nodeId} to file import ${fileImportId}`,
       );
       return false;
     }
 
-    console.log(
-      `Link 'MEMBER_OF' from ${nodeType} ${nodeId} to data import ${dataImportId} saved`,
-    );
+    console.log(`Link 'MEMBER_OF' from ${nodeType} ${nodeId} to file import ${fileImportId} saved`);
 
     return true;
   } catch (err) {
     console.error(
-      `Failed to save link 'MEMBER_OF' from ${nodeType} ${nodeId} to data import ${dataImportId}:`,
+      `Failed to save link 'MEMBER_OF' from ${nodeType} ${nodeId} to file import ${fileImportId}:`,
       err,
     );
     return false;

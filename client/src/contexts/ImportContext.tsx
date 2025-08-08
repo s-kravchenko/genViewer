@@ -1,11 +1,11 @@
 import { createContext, useReducer, useEffect, ReactNode } from 'react';
-import { DataImport, DataImportDetails } from '@shared/models';
-import { fetchDataImports, fetchDataImportDetails } from 'src/api/importApi';
+import { FileImport, FileImportDetails } from '@shared/models';
+import { fetchFileImports, fetchFileImportDetails as fetchImportDetails } from 'src/api/importApi';
 
 interface State {
-  dataImports: DataImport[];
+  imports: FileImport[];
   currentImportId: string | null;
-  currentImport: DataImportDetails | null;
+  currentImport: FileImportDetails | null;
   ui: {
     loading: boolean;
     error: string | null;
@@ -15,9 +15,9 @@ interface State {
 type Action =
   | { type: 'LOADING_START' }
   | { type: 'LOADING_ERROR'; error: string }
-  | { type: 'SET_DATA_IMPORTS'; payload: DataImport[] }
+  | { type: 'SET_IMPORTS'; payload: FileImport[] }
   | { type: 'SET_CURRENT_IMPORT_ID'; payload: string }
-  | { type: 'SET_CURRENT_IMPORT'; payload: DataImportDetails };
+  | { type: 'SET_CURRENT_IMPORT'; payload: FileImportDetails };
 
 function importReducer(state: State, action: Action) {
   switch (action.type) {
@@ -25,8 +25,8 @@ function importReducer(state: State, action: Action) {
       return { ...state, ui: { loading: true, error: null } };
     case 'LOADING_ERROR':
       return { ...state, ui: { loading: false, error: action.error } };
-    case 'SET_DATA_IMPORTS':
-      return { ...state, dataImports: action.payload, ui: { ...state.ui, loading: false } };
+    case 'SET_IMPORTS':
+      return { ...state, imports: action.payload, ui: { ...state.ui, loading: false } };
     case 'SET_CURRENT_IMPORT_ID':
       return { ...state, currentImportId: action.payload };
     case 'SET_CURRENT_IMPORT':
@@ -49,7 +49,7 @@ const ImportContext = createContext<ImportContextType | undefined>(undefined);
 
 // Initial state
 const initialState: State = {
-  dataImports: [],
+  imports: [],
   currentImportId: null,
   currentImport: null,
   ui: {
@@ -68,8 +68,8 @@ export function ImportProvider({ children }: { children: ReactNode }) {
 
   const fetchImports = async () => {
     dispatch({ type: 'LOADING_START' });
-    fetchDataImports()
-      .then((data) => dispatch({ type: 'SET_DATA_IMPORTS', payload: data }))
+    fetchFileImports()
+      .then((data) => dispatch({ type: 'SET_IMPORTS', payload: data }))
       .catch((err) => dispatch({ type: 'LOADING_ERROR', error: err.message }));
   };
 
@@ -77,8 +77,8 @@ export function ImportProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_CURRENT_IMPORT_ID', payload: importId });
     dispatch({ type: 'LOADING_START' });
     try {
-      const dataImportDetails = await fetchDataImportDetails(importId);
-      dispatch({ type: 'SET_CURRENT_IMPORT', payload: dataImportDetails });
+      const importDetails = await fetchImportDetails(importId);
+      dispatch({ type: 'SET_CURRENT_IMPORT', payload: importDetails });
     } catch (err: any) {
       dispatch({ type: 'LOADING_ERROR', error: err.message });
     }

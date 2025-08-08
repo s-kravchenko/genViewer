@@ -1,4 +1,4 @@
-import { DataImportDetails, Person, Family } from '@shared/models';
+import { FileImportDetails } from '@shared/models';
 import { Node, TreeBuilder } from './TreeBuilder';
 
 export interface PositionedNode extends Node {
@@ -10,17 +10,17 @@ export interface PositionedNode extends Node {
 }
 
 export class LayoutManager {
-  private dataImport: DataImportDetails;
+  private fileImport: FileImportDetails;
 
   private colCounter = 1;
   private nodeMap = new Map<string, PositionedNode>();
 
-  public constructor(dataImport: DataImportDetails) {
-    this.dataImport = dataImport;
+  public constructor(fileImport: FileImportDetails) {
+    this.fileImport = fileImport;
   }
 
   public apply(): Map<string, PositionedNode> {
-    const treeBuilder = new TreeBuilder(this.dataImport);
+    const treeBuilder = new TreeBuilder(this.fileImport);
     const rootNode = treeBuilder.build();
 
     if (rootNode)

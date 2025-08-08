@@ -1,4 +1,4 @@
 export { Person, PersonDetails } from './Person';
 export { Family } from './Family';
-export { DataImport, DataImportDetails } from './DataImport';
+export { FileImport, FileImportDetails } from './FileImport';
 export { Lineage } from './Lineage';

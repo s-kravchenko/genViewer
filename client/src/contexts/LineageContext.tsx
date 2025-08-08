@@ -26,11 +26,11 @@ function lineageReducer(state: State, action: Action) {
     case 'LOADING_ERROR':
       return { ...state, ui: { loading: false, error: action.error } };
     case 'SET_LINEAGES':
-      return { ...state, dataImports: action.payload, ui: { ...state.ui, loading: false } };
+      return { ...state, lineages: action.payload, ui: { ...state.ui, loading: false } };
     case 'SET_CURRENT_LINEAGE_ID':
-      return { ...state, currentImportId: action.payload };
+      return { ...state, currentLineageId: action.payload };
     case 'SET_CURRENT_LINEAGE':
-      return { ...state, currentImport: action.payload };
+      return { ...state, currentLineage: action.payload };
     default:
       return state;
   }

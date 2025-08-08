@@ -1,11 +1,11 @@
 import express from 'express';
-import { DataImport } from '@shared/models/DataImport';
+import { FileImport } from '@shared/models/FileImport';
 import { upload } from '../middleware/multer';
 import { GedcomImporter } from '../importers/gedcom';
 import {
-  loadDataImports,
-  loadDataImportDetails,
-} from '../repositories/neo4j/dataImport.repository';
+  loadFileImports,
+  loadFileImportDetails,
+} from '../repositories/neo4j/fileImport.repository';
 
 const router = express.Router();
 
@@ -19,14 +19,14 @@ router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
 
   try {
     const gedcomImporter = new GedcomImporter();
-    const dataImport: DataImport = await gedcomImporter.import(
+    const fileImport: FileImport = await gedcomImporter.import(
       req.file.originalname,
       req.file.path,
     );
 
-    console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, dataImport);
+    console.log(`POST /api/import/gedcom successful, HTTP 201 OK:`, fileImport);
 
-    res.status(201).send(dataImport);
+    res.status(201).send(fileImport);
   } catch (err) {
     console.error('GEDCOM import failed:', err);
     res.status(500).send({ error: 'Upload failed' });
@@ -36,20 +36,20 @@ router.post('/api/import/gedcom', upload.single('gedcom'), async (req, res) => {
 router.get('/api/import', async (req, res) => {
   console.log('Request received: GET /api/import');
 
-  const dataImports = await loadDataImports();
-  console.log(`GET /api/import successful, HTTP 200 OK: ${dataImports.length} items`);
+  const fileImports = await loadFileImports();
+  console.log(`GET /api/import successful, HTTP 200 OK: ${fileImports.length} items`);
 
-  res.status(200).json(dataImports);
+  res.status(200).json(fileImports);
 });
 
 router.get('/api/import/:id', async (req, res) => {
   console.log(`Request received: GET /api/import/:id=${req.params.id}`);
 
   const id = req.params.id;
-  const dataImport = await loadDataImportDetails(id);
+  const fileImport = await loadFileImportDetails(id);
   console.log(`GET /api/import/:id=${req.params.id} successful, HTTP 200 OK`);
 
-  res.status(200).json(dataImport);
+  res.status(200).json(fileImport);
 });
 
 export default router;

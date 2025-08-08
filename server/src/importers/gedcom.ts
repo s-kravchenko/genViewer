@@ -4,16 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Gedcom from 'read-gedcom';
 import { Person } from '@shared/models/Person';
 import { Family } from '@shared/models/Family';
-import { DataImport } from '@shared/models/DataImport';
-import { saveDataImportDetails } from '../repositories/neo4j/dataImport.repository';
+import { FileImport } from '@shared/models/FileImport';
+import { saveFileImportDetails } from '../repositories/neo4j/fileImport.repository';
 
 export class GedcomImporter {
-  public async import(originalFileName: string, filePath: string): Promise<DataImport> {
+  public async import(originalFileName: string, filePath: string): Promise<FileImport> {
     // Extract GEDCOM data from the file
     const buffer = fs.readFileSync(path.resolve(filePath));
     const gedcomData = Gedcom.readGedcom(buffer);
 
-    // Transform GEDCOM data into a data import structure
+    // Transform GEDCOM data into a file import structure
     const gedcomIdToUuidMap: Record<string, string> = this.createGedcomIdToUuidMap(gedcomData);
 
     const people: Person[] = gedcomData
@@ -29,8 +29,8 @@ export class GedcomImporter {
     const personIds = people.map((p) => p.id);
     const familyIds = families.map((f) => f.id);
 
-    const dataImport = {
-      id: uuidv4(), // Generate a unique id for the data import
+    const fileImport = {
+      id: uuidv4(), // Generate a unique id for the file import
 
       originalFileName,
       filePath,
@@ -43,15 +43,15 @@ export class GedcomImporter {
       familyIds,
     };
 
-    // Load the data import into the database
-    const importResult = await saveDataImportDetails(people, families, dataImport);
+    // Load the file import into the database
+    const importResult = await saveFileImportDetails(people, families, fileImport);
 
     if (!importResult) {
       throw new Error('Failed to import GEDCOM data');
     }
 
-    console.log(`GEDCOM import completed, data import id: ${dataImport.id}`);
-    return dataImport;
+    console.log(`GEDCOM import completed, file import id: ${fileImport.id}`);
+    return fileImport;
   }
 
   private createGedcomIdToUuidMap(gedcomData: Gedcom.SelectionGedcom): Record<string, string> {

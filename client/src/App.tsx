@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { DataImportPanel } from './components/DataImportPanel';
+import { ImportPanel } from './components/ImportPanel';
 import { LineagesPanel } from './components/LineagesPanel';
 import { DescendantTree } from './components/DescendantTree';
 import { ImportProvider } from './contexts/ImportContext';
@@ -31,7 +31,7 @@ function App() {
       <ImportProvider>
         <LineageProvider>
           <LeftPane>
-            <DataImportPanel />
+            <ImportPanel />
             <LineagesPanel />
           </LeftPane>
           <RightPane>

@@ -1,26 +1,26 @@
-import { DataImport, DataImportDetails } from '@shared/models';
+import { FileImport, FileImportDetails } from '@shared/models';
 
-export async function fetchDataImports(): Promise<DataImport[]> {
-  console.log('Fetching data imports');
+export async function fetchFileImports(): Promise<FileImport[]> {
+  console.log('Fetching file imports');
 
   const response = await fetch(`/api/import`);
-  if (!response.ok) throw new Error('Failed to fetch data imports');
+  if (!response.ok) throw new Error('Failed to fetch file imports');
 
-  console.log('Data imports fetched');
+  console.log('File imports fetched');
   return response.json();
 }
 
-export async function fetchDataImportDetails(id: string): Promise<DataImportDetails> {
-  console.log(`Fetching data import ${id}`);
+export async function fetchFileImportDetails(id: string): Promise<FileImportDetails> {
+  console.log(`Fetching file import ${id}`);
 
   const response = await fetch(`/api/import/${id}`);
-  if (!response.ok) throw new Error(`Failed to fetch data import ${id}`);
+  if (!response.ok) throw new Error(`Failed to fetch file import ${id}`);
 
-  console.log(`Data import ${id} fetched`);
+  console.log(`File import ${id} fetched`);
   return response.json();
 }
 
-export async function importGedcom(file: string | Blob): Promise<DataImport> {
+export async function importGedcom(file: string | Blob): Promise<FileImport> {
   console.log('Importing GEDCOM data');
 
   const formData = new FormData();

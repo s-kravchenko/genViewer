@@ -1,6 +1,6 @@
 import { Person } from './Person';
 import { Family } from './Family';
-export interface DataImport {
+export interface FileImport {
   id: string;
 
   originalFileName: string;
@@ -11,7 +11,7 @@ export interface DataImport {
   familyIds: string[];
 }
 
-export interface DataImportDetails extends DataImport {
+export interface FileImportDetails extends FileImport {
   people: Person[];
   families: Family[];
 }

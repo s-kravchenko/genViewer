@@ -1,14 +1,14 @@
-import { DataImportDetails, Person, Family } from '@shared/models';
+import { FileImportDetails, Person } from '@shared/models';
 
 export interface Node extends Person {
   children: Node[];
 }
 
 export class TreeBuilder {
-  private dataImport: DataImportDetails;
+  private fileImportDetails: FileImportDetails;
 
-  public constructor(dataImport: DataImportDetails) {
-    this.dataImport = dataImport;
+  public constructor(fileImportDetails: FileImportDetails) {
+    this.fileImportDetails = fileImportDetails;
   }
 
   public build(): Node | null {
@@ -19,16 +19,16 @@ export class TreeBuilder {
   }
 
   private findRootPerson(): Person | null {
-    const childIds = new Set(this.dataImport.families.flatMap((f) => f.childIds ?? []));
-    const root = this.dataImport.people.find((p) => !childIds.has(p.id));
+    const childIds = new Set(this.fileImportDetails.families.flatMap((f) => f.childIds ?? []));
+    const root = this.fileImportDetails.people.find((p) => !childIds.has(p.id));
     return root ?? null;
   }
 
   private buildTreeNode(person: Person): Node {
-    const children = this.dataImport.families
+    const children = this.fileImportDetails.families
       .filter((f) => f.husbandId === person.id || f.wifeId === person.id)
       .flatMap((f) => f.childIds ?? [])
-      .map((childId) => this.dataImport.people.find((p) => p.id === childId)!)
+      .map((childId) => this.fileImportDetails.people.find((p) => p.id === childId)!)
       .map((child) => this.buildTreeNode(child));
 
     return { ...person, children };

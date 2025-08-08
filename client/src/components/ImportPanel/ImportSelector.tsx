@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import daysjs from 'dayjs';
 import styled from 'styled-components';
-import { DataImport } from '@shared/models';
+import { FileImport } from '@shared/models';
 import ImportContext from '../../contexts/ImportContext';
 
 const Wrapper = styled.div`
@@ -10,13 +10,13 @@ const Wrapper = styled.div`
   font-family: system-ui, sans-serif;
 `;
 
-const DataImportList = styled.ul`
+const ImportList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
 `;
 
-const DataImportItem = styled.li<{ selected?: boolean }>`
+const ImportItem = styled.li<{ selected?: boolean }>`
   padding: 10px 12px;
   margin-bottom: 6px;
   border-radius: 4px;
@@ -30,31 +30,29 @@ const DataImportItem = styled.li<{ selected?: boolean }>`
   }
 `;
 
-export function DataImportSelector() {
+export function ImportSelector() {
   const { state, actions } = useContext(ImportContext)!;
 
-  const tooltip = (dataImport: DataImport) => {
-    const createdAt = daysjs(dataImport.createdAt).format('MMMM D YYYY, HH:mm:ss');
-    return `Id: ${dataImport.id}\nCreated: ${createdAt}`;
-  }
+  const tooltip = (fileImport: FileImport) => {
+    const createdAt = daysjs(fileImport.createdAt).format('MMMM D YYYY, HH:mm:ss');
+    return `Id: ${fileImport.id}\nCreated: ${createdAt}`;
+  };
 
   return (
     <Wrapper>
-      <DataImportList>
-        {state.dataImports.map((i) => (
-          <DataImportItem
+      <ImportList>
+        {state.imports.map((i) => (
+          <ImportItem
             key={i.id}
             selected={i.id === state.currentImportId}
             onClick={() => {
               actions.selectImport(i.id);
             }}
           >
-            <div title={tooltip(i)}>
-              {i.originalFileName}
-            </div>
-          </DataImportItem>
+            <div title={tooltip(i)}>{i.originalFileName}</div>
+          </ImportItem>
         ))}
-      </DataImportList>
+      </ImportList>
     </Wrapper>
   );
 }
