@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import ImportContext from '../../contexts/ImportContext';
 import styled from 'styled-components';
 import { LayoutManager, PositionedNode } from './LayoutManager';
@@ -35,16 +36,18 @@ interface DescendantTreeProps {
 
 export default function DescendantTree({ rowGap }: DescendantTreeProps) {
   const { state, actions } = useContext(ImportContext)!;
+  const { importId } = useParams<{ importId: string }>();
 
   const treeRef = useRef<HTMLDivElement>(null);
   const [nodeMap, setNodeMap] = useState<Map<string, PositionedNode>>(new Map());
 
   useEffect(() => {
-    if (!state.currentImport) {
-      setNodeMap(new Map()); // Clear out old layout
-      return;
-    }
+    if (!importId) return;
+    actions.selectImport(importId);
+  }, [importId]);
 
+  useEffect(() => {
+    if (!state.currentImport) return;
     const layoutManager = new LayoutManager(state.currentImport);
     const nodes = layoutManager.apply();
     setNodeMap(nodes);

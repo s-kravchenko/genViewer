@@ -6,8 +6,10 @@ export function Main() {
   return (
     <Box sx={{ flex: 1, p: 2 }}>
       <Routes>
-        <Route path="/lineages" element={'Hello!'} />
-        <Route path="/imports" element={<DescendantTree rowGap={40} />} />
+        <Route path="/" element={<></>} />
+        <Route path="/lineages" element={<></>} />
+        <Route path="/imports" element={<></>} />
+        <Route path="/imports/:importId" element={<DescendantTree rowGap={40} />} />
       </Routes>
     </Box>
   );

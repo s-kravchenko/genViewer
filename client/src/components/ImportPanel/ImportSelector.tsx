@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
 import daysjs from 'dayjs';
 import { FileImport } from '@shared/models';
 import ImportContext from '../../contexts/ImportContext';
@@ -19,9 +20,12 @@ export function ImportSelector() {
           <Tooltip key={i.id} title={tooltip(i)} placement="right" arrow>
             <ListItemButton
               key={i.id}
-              selected={i.id === state.currentImportId}
-              onClick={() => {
-                actions.selectImport(i.id);
+              component={NavLink}
+              to={`/imports/${i.id}`}
+              sx={{
+                '&.active': {
+                  bgcolor: 'action.selected',
+                },
               }}
             >
               <Typography>{i.originalFileName}</Typography>

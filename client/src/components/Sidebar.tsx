@@ -37,8 +37,8 @@ export function Sidebar() {
         </Tooltip>
       </Toolbar>
       <Routes>
-        <Route path="/lineages" element={<LineagesPanel />} />
-        <Route path="/imports" element={<ImportPanel />} />
+        <Route path="/lineages/*" element={<LineagesPanel />} />
+        <Route path="/imports/*" element={<ImportPanel />} />
       </Routes>
     </Drawer>
   );
