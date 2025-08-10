@@ -1,8 +1,10 @@
 import React, { ChangeEvent, useContext } from 'react';
+import { Button, Tooltip } from '@mui/material';
+import UploadIcon from '@mui/icons-material/Upload';
 import { importGedcom } from '../../api/importApi';
 import ImportContext from '../../contexts/ImportContext';
 
-export default function GedcomFileUploader() {
+export default function GedcomImportButton() {
   const { state, actions } = useContext(ImportContext)!;
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -16,22 +18,14 @@ export default function GedcomFileUploader() {
     const dataImport = await importGedcom(file);
     if (!dataImport) return; // TODO: handle error
 
-    console.log('GEDCOM file uploaded successfully:', dataImport);
+    console.log('GEDCOM file imported successfully:', dataImport);
 
     await actions.fetchImports();
     await actions.selectImport(dataImport.id);
   };
 
   return (
-    <div>
-      <label htmlFor="gedcom-input">
-        <button
-          type="button"
-          onClick={() => document.getElementById('gedcom-input')?.click()}
-        >
-          📂 Upload GEDCOM File
-        </button>
-      </label>
+    <>
       <input
         id="gedcom-input"
         type="file"
@@ -39,6 +33,14 @@ export default function GedcomFileUploader() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-    </div>
+      <label htmlFor="gedcom-input">
+        <Button
+          startIcon={<UploadIcon />}
+          onClick={() => document.getElementById('gedcom-input')?.click()}
+        >
+          Import GEDCOM
+        </Button>
+      </label>
+    </>
   );
 }

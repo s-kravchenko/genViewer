@@ -1,11 +1,14 @@
-import GedcomFileUploader from './GedcomFileUploader';
+import { Box, Toolbar } from '@mui/material';
+import GedcomImportButton from './GedcomImportButton';
 import { ImportSelector } from './ImportSelector';
 
 export default function ImportPanel() {
   return (
-    <>
-      <GedcomFileUploader />
+    <Box>
+      <Toolbar>
+        <GedcomImportButton />
+      </Toolbar>
       <ImportSelector />
-    </>
+    </Box>
   );
 }
