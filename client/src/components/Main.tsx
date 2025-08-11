@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { DescendantTree } from './DescendantTree';
+import ImportRoots from './ImportRoots';
 
 export function Main() {
   return (
@@ -10,6 +11,7 @@ export function Main() {
         <Route path="/lineages" element={<></>} />
         <Route path="/imports" element={<></>} />
         <Route path="/imports/:importId" element={<DescendantTree rowGap={40} />} />
+        <Route path="/imports/:importId/roots" element={<ImportRoots />} />
       </Routes>
     </Box>
   );

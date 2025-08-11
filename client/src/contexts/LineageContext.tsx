@@ -63,7 +63,7 @@ export function LineageProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(lineageReducer, initialState);
 
   useEffect(() => {
-    fetchLineages();
+    fetchAllLineages();
   }, []);
 
   const fetchAllLineages = async () => {

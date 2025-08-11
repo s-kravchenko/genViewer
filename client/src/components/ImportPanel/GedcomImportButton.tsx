@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useContext } from 'react';
-import { Button, Tooltip } from '@mui/material';
+import { ChangeEvent, useContext } from 'react';
+import { Button } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import { importGedcom } from '../../api/importApi';
 import ImportContext from '../../contexts/ImportContext';
@@ -8,10 +8,10 @@ export default function GedcomImportButton() {
   const { state, actions } = useContext(ImportContext)!;
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.currentTarget.files?.[0];
 
     // Reset the input so the same file can be processed again
-    event.target.value = '';
+    event.currentTarget.value = '';
 
     if (!file) return;
 

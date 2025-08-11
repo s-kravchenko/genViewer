@@ -1,1 +1,1 @@
-export { default as ImportPanel } from './ImportPanel';
+export { ImportPanel } from './ImportPanel';

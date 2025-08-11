@@ -5,6 +5,7 @@ import { GedcomImporter } from '../importers/gedcom';
 import {
   loadFileImports,
   loadFileImportDetails,
+  loadFileImportRoots,
 } from '../repositories/neo4j/fileImport.repository';
 
 const router = express.Router();
@@ -48,6 +49,16 @@ router.get('/api/import/:id', async (req, res) => {
   const id = req.params.id;
   const fileImport = await loadFileImportDetails(id);
   console.log(`GET /api/import/:id=${req.params.id} successful, HTTP 200 OK`);
+
+  res.status(200).json(fileImport);
+});
+
+router.get('/api/import/:id/roots', async (req, res) => {
+  console.log(`Request received: GET /api/import/:id=${req.params.id}/roots`);
+
+  const id = req.params.id;
+  const fileImport = await loadFileImportRoots(id);
+  console.log(`GET /api/import/:id=${req.params.id}/roots successful, HTTP 200 OK`);
 
   res.status(200).json(fileImport);
 });
